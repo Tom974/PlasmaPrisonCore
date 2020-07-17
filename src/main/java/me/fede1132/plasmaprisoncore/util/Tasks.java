@@ -1,6 +1,7 @@
 package me.fede1132.plasmaprisoncore.util;
 
 import me.fede1132.plasmaprisoncore.PlasmaPrisonCore;
+import me.fede1132.plasmaprisoncore.actionbar.ActionBar;
 import me.fede1132.plasmaprisoncore.internal.events.VaultEconomyEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -15,6 +16,7 @@ public class Tasks {
     public Tasks(PlasmaPrisonCore instance) {
         this.instance = instance;
         taskVaultEconomy();
+        taskActionBar();
     }
 
     /**
@@ -39,5 +41,12 @@ public class Tasks {
                 }
             });
         },1,20);
+    }
+
+    /**
+     * This task checks every 2.5 seconds for new action bar messages
+     */
+    private void taskActionBar() {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(instance,()->Bukkit.getOnlinePlayers().forEach(ActionBar::check),1,50);
     }
 }
