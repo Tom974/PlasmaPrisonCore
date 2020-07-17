@@ -50,9 +50,7 @@ public class AddonManager {
                 warnlog(addon,"Could not find a valid Addon class at path " + clazz);
                 return;
             }
-            Object instance = main.newInstance();
-            Method load = main.getMethod("load");
-            load.invoke(instance);
+            ((Addon) main.newInstance()).load();
             this.instance.getLogger().info("(!) Successfully loaded addon " + addon.getName());
         }
     }
