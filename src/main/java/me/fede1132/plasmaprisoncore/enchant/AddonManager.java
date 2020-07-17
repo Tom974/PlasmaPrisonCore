@@ -44,7 +44,7 @@ public class AddonManager {
                 warnlog(addon,"The addon.yml does not contains name or main strings");
                 return;
             }
-            String clazz = cfg.getString("name");
+            String clazz = cfg.getString("main");
             Class<?> main = Class.forName(clazz, true, uc);
             if (!main.isAssignableFrom(Addon.class)) {
                 warnlog(addon,"Could not find a valid Addon class at path " + clazz);
