@@ -3,6 +3,7 @@ package me.fede1132.plasmaprisoncore.enchant;
 import me.fede1132.plasmaprisoncore.PlasmaPrisonCore;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 
@@ -27,9 +28,11 @@ public abstract class Addon {
         this.listeners = listeners;
         for (Listener listener : listeners) {
             for (Method method : listener.getClass().getMethods()) {
-                for (Class<?> clazz : method.getParameterTypes()) {
-                    if (clazz.isAssignableFrom(Event.class)) {
-                        handlers.add(Event.class.cast(clazz).getHandlers());
+                if (method.isAnnotationPresent(EventHandler.class)) {
+                    for (Class<?> clazz : method.getParameterTypes()) {
+                        if (clazz.isAssignableFrom(Event.class)) {
+                            handlers.add(Event.class.cast(clazz).getHandlers());
+                        }
                     }
                 }
             }
