@@ -18,6 +18,7 @@ public class BlockBreak implements Listener {
     @EventHandler(priority = EventPriority.LOW)
     public void onBreak(BlockBreakEvent event) {
         if (event.isCancelled() && !instance.config.getOrSetDefault("auto-pickup.enabled", true)) return;
+        event.setDropItems(false);
         List<String> blacklist = instance.config.getStringList("auto-pickup.blacklist");
         if (blacklist.size()>0) {
             for (String block : blacklist) {
