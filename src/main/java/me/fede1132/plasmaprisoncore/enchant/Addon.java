@@ -14,7 +14,7 @@ import java.util.List;
 public abstract class Addon {
     public PlasmaPrisonCore instance = PlasmaPrisonCore.getInstance();
     private Listener[] listeners;
-    private List<HandlerList> handlers = new ArrayList<>();
+    private final List<HandlerList> handlers = new ArrayList<>();
     public abstract void load();
 
     public void unload(String addon) {

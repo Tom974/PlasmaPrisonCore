@@ -3,9 +3,12 @@ package me.fede1132.plasmaprisoncore;
 import de.leonhard.storage.LightningBuilder;
 import de.leonhard.storage.Yaml;
 import de.leonhard.storage.internal.settings.ConfigSettings;
+import me.fede1132.plasmaprisoncore.events.BlockBreak;
+import me.fede1132.plasmaprisoncore.events.EconomyChange;
 import me.fede1132.plasmaprisoncore.util.Tasks;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -22,12 +25,16 @@ public final class PlasmaPrisonCore extends JavaPlugin {
     @Override
     public void onEnable() {
         log("Plasma Prison Core v" + getDescription().getVersion());
-        log("Loading files");
+        log("Loading files..");
         config = LightningBuilder.fromFile(new File(getDataFolder(),"config")).addInputStream(getResource("config.yml")).setConfigSettings(ConfigSettings.PRESERVE_COMMENTS).createYaml();
         chat = LightningBuilder.fromFile(new File(getDataFolder(),"chat")).addInputStream(getResource("chat.yml")).setConfigSettings(ConfigSettings.PRESERVE_COMMENTS).createYaml();;
         messages = LightningBuilder.fromFile(new File(getDataFolder(), "messages")).addInputStream(getResource("messages.yml")).setConfigSettings(ConfigSettings.PRESERVE_COMMENTS).createYaml();
-        log("Loading command and hooks");
+        log("Loading command and hooks..");
         instance = this;
+        log("Loading events..");
+        PluginManager pm = Bukkit.getPluginManager();
+        pm.registerEvents(new BlockBreak(), this);
+        pm.registerEvents(new EconomyChange(), this);
         log("Loading vault lib");
         setupVault();
         log("Starting tasks...");
@@ -36,7 +43,7 @@ public final class PlasmaPrisonCore extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        log("Disabling plugin..");
     }
 
     public void setupVault() {
