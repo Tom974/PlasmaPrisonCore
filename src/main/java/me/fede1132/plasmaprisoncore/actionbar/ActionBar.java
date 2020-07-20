@@ -13,7 +13,7 @@ public class ActionBar {
     private static final int STAY_TIME = 3;
     private static final PlasmaPrisonCore instance = PlasmaPrisonCore.getInstance();
     private static final HashMap<Player, HashMap<ActionBarTypes, Integer>> bars = new HashMap<>();
-    private static final List<QueueEntry> fireQueue = new ArrayList<>();
+    private static final List<QueueEntry<Player, ActionBarTypes>> fireQueue = new ArrayList<>();
     private static final String spacer = StringUtil.color(instance.messages.getString("action-bar.spacer"));
     public enum ActionBarTypes {
         ECONOMY;
@@ -35,19 +35,20 @@ public class ActionBar {
         List<QueueEntry<Player, ActionBarTypes>> queue = fireQueue.stream().filter(entry->entry.getKey().equals(player)).collect(Collectors.toList());
         HashMap<ActionBarTypes, Integer> bars = ActionBar.bars.get(player);
         queue.forEach(entry->{
-            fireQueue.remove(player);
+            fireQueue.remove(entry);
             bars.put(entry.getValue(), 1);
         });
         ActionBar.bars.remove(player);
         StringBuilder sb = new StringBuilder();
         bars.forEach((k,v)->{
             if (v>STAY_TIME) {
-                queue.remove(k);
+                bars.remove(k);
                 return;
             }
             sb.append(k.text).append(spacer);
             bars.put(k,++v);
         });
         player.sendActionBar(StringUtil.color(sb.substring(0,sb.length()-spacer.length()-1)));
+        ActionBar.bars.put(player,bars);
     }
 }

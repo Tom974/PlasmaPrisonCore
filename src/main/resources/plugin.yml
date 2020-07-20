@@ -3,7 +3,7 @@ version: ${project.version}
 main: me.fede1132.plasmaprisoncore.PlasmaPrisonCore
 api-version: 1.16
 prefix: PrisonCore
-load: STARTUP
+load: POSTWORLD
 authors: [PlasmaDevTeam]
 description: Plasma custom prison core
 depend: [Vault, Essentials, PlaceholderAPI]

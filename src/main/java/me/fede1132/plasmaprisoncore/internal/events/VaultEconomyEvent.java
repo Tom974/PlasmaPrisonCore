@@ -6,13 +6,20 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 public class VaultEconomyEvent extends Event implements Cancellable {
+    private static final HandlerList handlerList = new HandlerList();
     private boolean cancel;
+    private final Player player;
     private final double currentAmount;
     private final double newAmount;
     public VaultEconomyEvent(boolean isAsync, Player player, double currentAmount, double newAmount) {
         super(isAsync);
+        this.player = player;
         this.currentAmount = currentAmount;
         this.newAmount = newAmount;
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 
     public double getCurrentAmount() {
@@ -30,7 +37,11 @@ public class VaultEconomyEvent extends Event implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return null;
+        return handlerList;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlerList;
     }
 
     @Override

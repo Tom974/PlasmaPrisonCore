@@ -7,7 +7,6 @@
     <groupId>me.fede1132</groupId>
     <artifactId>PlasmaPrisonCore</artifactId>
     <version>1.0</version>
-    <packaging>jar</packaging>
 
     <name>PlasmaPrisonCore</name>
 
@@ -79,6 +78,10 @@
         <repository>
             <id>placeholderapi</id>
             <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+        </repository>
+        <repository>
+            <id>mrivanplays-repo</id>
+            <url>https://dl.bintray.com/mrivanplaysbg/com.github.mrivanplays/</url>
         </repository>
     </repositories>
 
