@@ -51,8 +51,8 @@ public class BlockBreak implements Listener {
         if (event.getPlayer().getInventory().getItemInMainHand()!=null
                 &&event.getPlayer().getInventory().getItemInMainHand().getType().toString().endsWith("PICKAXE")) {
             ItemStack pick = event.getPlayer().getInventory().getItemInMainHand();
-            if (pick.containsEnchantment(Enchantment.LUCK)) {
-                int rnd = new Random().nextInt(pick.getEnchantmentLevel(Enchantment.LUCK));
+            if (pick.containsEnchantment(Enchantment.LOOT_BONUS_BLOCKS)) {
+                int rnd = new Random().nextInt(pick.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS));
                 count = rnd>0?rnd:1;
             }
         }

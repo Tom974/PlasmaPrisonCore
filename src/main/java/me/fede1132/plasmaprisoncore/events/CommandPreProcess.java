@@ -12,7 +12,7 @@ public class CommandPreProcess implements Listener {
     public void onCommandPreProcess(PlayerCommandPreprocessEvent event) {
         String[] args = event.getMessage().replace("/","").toLowerCase().split(" ");
         if ((args.length==0&&!event.getMessage().toLowerCase().startsWith("/plasmaprison"))
-                ||(args.length>0&&args[0].equals("plasmaprison"))) return;
+                ||(args.length>0&&!args[0].equals("plasmaprison"))) return;
         if (!event.getPlayer().hasPermission("plasmaprison.admin")) return;
         event.setCancelled(true);
         if (args.length<2) {
