@@ -1,6 +1,6 @@
 package me.fede1132.testaddon;
 
-import me.fede1132.plasmaprisoncore.enchant.Addon;
+import me.fede1132.plasmaprisoncore.addons.Addon;
 
 public class TestAddon extends Addon {
     @Override
