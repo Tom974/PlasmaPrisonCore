@@ -12,60 +12,67 @@ import java.io.File;
 import java.util.HashMap;
 
 public abstract class Addon {
-    public PlasmaPrisonCore instance = PlasmaPrisonCore.getInstance();
+    private static Addon instance;
+    public PlasmaPrisonCore plugin = PlasmaPrisonCore.getInstance();
     private String addon;
     public boolean isEnabled = true;
-    public Yaml config;
     private Listener[] listeners;
     private String[] enchants;
 
     public void init(String addon) {
+        instance = this;
         this.addon = addon;
+        load();
     }
 
     public abstract void load();
 
     public void unload() {
-        instance.getLogger().info("(!) Unloading " + addon + " addon.");
-        for (Listener listener : listeners) HandlerList.unregisterAll(listener);
-        for (String enchant : enchants) instance.enchantManager.registeredEnchants.remove(enchant);
+        plugin.getLogger().info("(!) Unloading " + addon + " addon.");
+        if(listeners!=null) for (Listener listener : listeners) HandlerList.unregisterAll(listener);
+        if(enchants!=null) for (String enchant : enchants) plugin.enchantManager.registeredEnchants.remove(enchant);
     }
 
     public void registerListeners(Listener... listeners) {
         this.listeners = listeners;
-        for (Listener listener : listeners) Bukkit.getPluginManager().registerEvents(listener,instance);
+        for (Listener listener : listeners) Bukkit.getPluginManager().registerEvents(listener,plugin);
     }
 
     public void registerEnchants(Enchant... enchants) {
         this.enchants = new String[enchants.length];
-        boolean n = setupPersonalConfig(null);
+        Yaml yaml = setupPersonalConfig("enchants", null);
         HashMap<String, Enchant> map = new HashMap<>();
         for (int i=0;i<enchants.length;i++) {
             Enchant enchant = enchants[i];
             this.enchants[i] = enchant.getId();
             String path = "enchants." + enchant.getId() + ".";
-            config.setDefault(path+"lore-color", enchant.loreColor);
-            config.setDefault(path+"max-level", enchant.max);
-            config.setDefault(path+"cost", enchant.cost);
-            if (!n) {
-                enchant.loreColor = config.getString(path+"lore-color");
-                enchant.max = config.getInt(path+"max-level");
-                enchant.cost = config.getInt(path+"cost");
+
+            if (!yaml.contains(path+"lore-color")) yaml.setDefault(path+"lore-color", enchant.loreColor);
+            else enchant.loreColor = yaml.getString(path+"lore-color");
+
+            if (!yaml.contains(path+"max-level")) yaml.setDefault(path+"max-level", enchant.max);
+            else enchant.max = yaml.getInt(path+"max-level");
+
+            if (!yaml.contains(path+"cost")) yaml.setDefault(path+"cost", enchant.cost);
+            else enchant.cost = yaml.getInt(path+"cost");
+
+            if (enchant.options!=null) for (int j=0;j<enchant.options.length;j++) {
+                Enchant.EnchantOption<String,Object> option = enchant.options[j];
+                if (!yaml.contains(path+option.getKey())) yaml.setDefault(path+option.getKey(),option.getValue());
+                else option.setValue(yaml.get(path+option.getKey()));
+                enchant.options[j] = option;
             }
+
             map.put(enchant.getId(),enchant);
         }
-        instance.enchantManager.registeredEnchants.putAll(map);
+        plugin.enchantManager.registeredEnchants.putAll(map);
     }
 
-    public boolean setupPersonalConfig(HashMap<String, Object> def) {
-        File file = new File(instance.getDataFolder()
-                + System.getProperty("path.separator") + "configs", addon);
-        boolean n = file.exists();
-        if (!n) {
-            config = LightningBuilder.fromFile(file).createYaml();
-            if (def!=null&&def.size()>0) def.forEach(config::set);
-        }
-        return n;
+    public Yaml setupPersonalConfig(String name, HashMap<String, Object> def) {
+        String separator = File.separator;
+        Yaml yaml = new Yaml(new File(plugin.getDataFolder()+separator+"configs"+separator+addon, name));
+        if (def!=null&&def.size()>0) def.forEach(yaml::setDefault);
+        return yaml;
     }
 
     public void enable() {
@@ -80,5 +87,9 @@ public abstract class Addon {
             unload();
             isEnabled=false;
         }
+    }
+
+    public static Addon getInstance() {
+        return instance;
     }
 }

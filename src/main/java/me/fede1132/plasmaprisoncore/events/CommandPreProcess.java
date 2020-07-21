@@ -11,9 +11,9 @@ public class CommandPreProcess implements Listener {
     private final PlasmaPrisonCore instance = PlasmaPrisonCore.getInstance();
     @EventHandler
     public void onCommandPreProcess(PlayerCommandPreprocessEvent event) {
-        String[] args = event.getMessage().replace("/","").toLowerCase().split(" ");
+        String[] args = event.getMessage().replace("/","").split(" ");
         if ((args.length==0&&!event.getMessage().toLowerCase().startsWith("/plasmaprison"))
-                ||(args.length>0&&!args[0].equals("plasmaprison"))) return;
+                ||(args.length>0&&!args[0].toLowerCase().equals("plasmaprison"))) return;
         if (!event.getPlayer().hasPermission("plasmaprison.admin")) return;
         event.setCancelled(true);
         if (args.length<2) {
@@ -50,6 +50,12 @@ public class CommandPreProcess implements Listener {
                 }
                 event.getPlayer().sendMessage(ChatColor.RED + "No addon found for provided input "
                         + ChatColor.WHITE + args[2]);
+                return;
+            }
+            case "reload": {
+                event.getPlayer().sendMessage("Reloading addons...");
+                instance.addonManager.reloadAddons();
+                event.getPlayer().sendMessage("Addons reloaded");
             }
         }
     }

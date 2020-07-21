@@ -41,7 +41,6 @@ public final class PlasmaPrisonCore extends JavaPlugin {
         instance = this;
         log("Loading events..");
         PluginManager pm = Bukkit.getPluginManager();
-        pm.registerEvents(new BlockBreak(), this);
         pm.registerEvents(new CommandPreProcess(), this);
         log("Loading vault lib");
         setupVault();
