@@ -63,8 +63,6 @@ public class AddonManager {
                     return;
                 }
                 String clazz = cfg.getString("main");
-                System.out.println("Clazz: " + clazz);
-                Class.forName(Addon.class.getName());
                 Class<?> wrap = Class.forName(clazz, true, uc);
                 if (!Addon.class.isAssignableFrom(wrap)) {
                     warnlog(addon, "Could not find a valid Addon class at path " + clazz);
