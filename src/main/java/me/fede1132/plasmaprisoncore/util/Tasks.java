@@ -1,5 +1,6 @@
 package me.fede1132.plasmaprisoncore.util;
 
+import com.gmail.fendt873.f32lib.other.Placeholder;
 import me.fede1132.plasmaprisoncore.PlasmaPrisonCore;
 import me.fede1132.plasmaprisoncore.actionbar.ActionBar;
 import me.fede1132.plasmaprisoncore.internal.events.VaultEconomyEvent;
@@ -39,6 +40,10 @@ public class Tasks {
                     return;
                 }
                 vaultEconomy.put(player,eco);
+                if (eco>old) {
+                    ActionBar.ActionBarTypes.ECONOMY.fire(event.getPlayer(), new Placeholder("money",
+                            String.valueOf(eco-old)));
+                }
             }
         }),1,20);
     }

@@ -3,10 +3,9 @@ package me.fede1132.plasmaprisoncore;
 import de.leonhard.storage.LightningBuilder;
 import de.leonhard.storage.Yaml;
 import de.leonhard.storage.internal.settings.ConfigSettings;
-import me.fede1132.plasmaprisoncore.enchant.AddonManager;
-import me.fede1132.plasmaprisoncore.events.BlockBreak;
-import me.fede1132.plasmaprisoncore.events.CommandPreProcess;
-import me.fede1132.plasmaprisoncore.events.EconomyChange;
+import me.fede1132.plasmaprisoncore.addons.AddonManager;
+import me.fede1132.plasmaprisoncore.addons.enchant.EnchantManager;
+import me.fede1132.plasmaprisoncore.events.*;
 import me.fede1132.plasmaprisoncore.util.Tasks;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -23,6 +22,7 @@ import java.net.URLClassLoader;
 public final class PlasmaPrisonCore extends JavaPlugin {
     private static PlasmaPrisonCore instance;
     public AddonManager addonManager;
+    public EnchantManager enchantManager;
     // Files
     public Yaml config;
     public Yaml chat;
@@ -42,13 +42,13 @@ public final class PlasmaPrisonCore extends JavaPlugin {
         log("Loading events..");
         PluginManager pm = Bukkit.getPluginManager();
         pm.registerEvents(new BlockBreak(), this);
-        pm.registerEvents(new EconomyChange(), this);
         pm.registerEvents(new CommandPreProcess(), this);
         log("Loading vault lib");
         setupVault();
         log("Starting tasks...");
         new Tasks(this);
-        log("Loading addons..");
+        log("Loading managers..");
+        enchantManager = new EnchantManager();
         addonManager = new AddonManager();
         addonManager.reloadAddons();
     }

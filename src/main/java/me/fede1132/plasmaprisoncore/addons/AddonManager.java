@@ -1,4 +1,4 @@
-package me.fede1132.plasmaprisoncore.enchant;
+package me.fede1132.plasmaprisoncore.addons;
 
 import me.fede1132.plasmaprisoncore.PlasmaPrisonCore;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -11,13 +11,34 @@ import java.net.URLClassLoader;
 import java.util.HashMap;
 
 public class AddonManager {
+    public static class CachedAddon {
+        private final URLClassLoader loader;
+        private final Addon main;
+        public CachedAddon(URLClassLoader loader, Addon main) {
+            this.loader = loader;
+            this.main = main;
+        }
+
+        public void closeLoader() {
+            try {
+                loader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public Addon getMain() {
+            return main;
+        }
+    }
     private final PlasmaPrisonCore instance = PlasmaPrisonCore.getInstance();
-    public HashMap<String, Object> addons = new HashMap<>();
+    public HashMap<String, CachedAddon> addons = new HashMap<>();
     public void reloadAddons() {
         try {
             if (!addons.isEmpty()) {
                 addons.forEach((k, v) -> {
-                    ((Addon) v).unload(k);
+                    v.getMain().unload();
+                    v.closeLoader();
                     addons.remove(k);
                 });
             }
@@ -49,10 +70,11 @@ public class AddonManager {
                     warnlog(addon, "Could not find a valid Addon class at path " + clazz);
                     return;
                 }
+                String name = cfg.getString("name");
                 Addon instance = (Addon) wrap.newInstance();
-                instance.load();
-                this.addons.put(cfg.getString("name"), instance);
-                this.instance.getLogger().info("(!) Successfully loaded addon " + addon.getName());
+                instance.init(name);
+                this.addons.put(name, new CachedAddon(uc, instance));
+                this.instance.getLogger().info("(!) Successfully loaded addon " + name);
             }
         } catch (Exception e) {
             e.printStackTrace();
