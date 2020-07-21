@@ -6,6 +6,7 @@ import de.leonhard.storage.internal.settings.ConfigSettings;
 import me.fede1132.plasmaprisoncore.addons.AddonManager;
 import me.fede1132.plasmaprisoncore.addons.enchant.EnchantManager;
 import me.fede1132.plasmaprisoncore.events.*;
+import me.fede1132.plasmaprisoncore.internal.util.Database;
 import me.fede1132.plasmaprisoncore.util.Tasks;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -21,6 +22,7 @@ import java.net.URLClassLoader;
 
 public final class PlasmaPrisonCore extends JavaPlugin {
     private static PlasmaPrisonCore instance;
+    public Database database;
     public AddonManager addonManager;
     public EnchantManager enchantManager;
     // Files
@@ -47,6 +49,7 @@ public final class PlasmaPrisonCore extends JavaPlugin {
         log("Starting tasks...");
         new Tasks(this);
         log("Loading managers..");
+        database = new Database(this);
         enchantManager = new EnchantManager();
         addonManager = new AddonManager();
         addonManager.reloadAddons();
