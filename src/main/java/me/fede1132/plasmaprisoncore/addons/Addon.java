@@ -4,6 +4,7 @@ import de.leonhard.storage.LightningBuilder;
 import de.leonhard.storage.Yaml;
 import me.fede1132.plasmaprisoncore.PlasmaPrisonCore;
 import me.fede1132.plasmaprisoncore.addons.enchant.Enchant;
+import me.fede1132.plasmaprisoncore.internal.util.SimpleEntry;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -57,7 +58,7 @@ public abstract class Addon {
             else enchant.cost = yaml.getInt(path+"cost");
 
             if (enchant.options!=null) for (int j=0;j<enchant.options.length;j++) {
-                Enchant.EnchantOption<String,Object> option = enchant.options[j];
+                SimpleEntry<String,Object> option = enchant.options[j];
                 if (!yaml.contains(path+option.getKey())) yaml.setDefault(path+option.getKey(),option.getValue());
                 else option.setValue(yaml.get(path+option.getKey()));
                 enchant.options[j] = option;

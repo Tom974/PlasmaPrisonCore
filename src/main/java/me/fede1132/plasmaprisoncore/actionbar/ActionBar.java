@@ -2,7 +2,7 @@ package me.fede1132.plasmaprisoncore.actionbar;
 
 import com.gmail.fendt873.f32lib.other.Placeholder;
 import me.fede1132.plasmaprisoncore.PlasmaPrisonCore;
-import me.fede1132.plasmaprisoncore.internal.util.QueueEntry;
+import me.fede1132.plasmaprisoncore.internal.util.SimpleEntry;
 import me.fede1132.plasmaprisoncore.internal.util.StringUtil;
 import org.bukkit.entity.Player;
 
@@ -13,7 +13,7 @@ public class ActionBar {
     private static final int STAY_TIME = 3;
     private static final PlasmaPrisonCore instance = PlasmaPrisonCore.getInstance();
     private static final HashMap<Player, HashMap<ActionBarTypes, Integer>> bars = new HashMap<>();
-    private static final List<QueueEntry<Player, ActionBarTypes>> fireQueue = new ArrayList<>();
+    private static final List<SimpleEntry<Player, ActionBarTypes>> fireQueue = new ArrayList<>();
     private static final String spacer = StringUtil.color(instance.messages.getString("action-bar.spacer"));
     public enum ActionBarTypes {
         ECONOMY;
@@ -26,13 +26,13 @@ public class ActionBar {
 
         public void fire(Player player, Placeholder... placeholders) {
             this.text = StringUtil.getMessage(player, defPath + ".text", "&cERROR", placeholders)[0];
-            fireQueue.add(new QueueEntry<>(player,this));
+            fireQueue.add(new SimpleEntry<>(player,this));
         }
     }
 
     public static void check(Player player) {
         if (!ActionBar.bars.containsKey(player)) return;
-        List<QueueEntry<Player, ActionBarTypes>> queue = fireQueue.stream().filter(entry->entry.getKey().equals(player)).collect(Collectors.toList());
+        List<SimpleEntry<Player, ActionBarTypes>> queue = fireQueue.stream().filter(entry->entry.getKey().equals(player)).collect(Collectors.toList());
         HashMap<ActionBarTypes, Integer> bars = ActionBar.bars.get(player);
         queue.forEach(entry->{
             fireQueue.remove(entry);
