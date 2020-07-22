@@ -49,5 +49,6 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.bukkit:bukkit:1.13.1-R0.1-SNAPSHOT" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: me.clip:placeholderapi:2.10.6" level="project" />
     <orderEntry type="library" name="Maven: com.zaxxer:HikariCP:3.4.1" level="project" />
+    <orderEntry type="library" name="Maven: de.tr7zw:item-nbt-api-plugin:2.4.1" level="project" />
   </component>
 </module>

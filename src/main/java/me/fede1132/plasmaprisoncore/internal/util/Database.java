@@ -1,6 +1,5 @@
 package me.fede1132.plasmaprisoncore.internal.util;
 
-import com.zaxxer.hikari.HikariDataSource;
 import me.fede1132.plasmaprisoncore.PlasmaPrisonCore;
 
 import java.io.File;
@@ -13,6 +12,14 @@ public class Database {
     private final PlasmaPrisonCore instance;
     public Database(PlasmaPrisonCore instance) {
         this.instance = instance;
+        try (Connection connection = getConnection()) {
+            connection.prepareStatement("CREATE TABLE IF NOT EXISTS users (\n" +
+                    "  `uuid` CHAR(36) NOT NULL,\n" +
+                    "  `name` VARCHAR(16) NOT NULL,\n" +
+                    "  PRIMARY KEY (`uuid`));\n").executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public Connection getConnection() {

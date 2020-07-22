@@ -1,8 +1,9 @@
 package me.fede1132.plasmaprisoncore.events;
 
 import me.fede1132.plasmaprisoncore.PlasmaPrisonCore;
-import me.fede1132.plasmaprisoncore.addons.AddonManager;
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
@@ -25,9 +26,18 @@ public class CommandPreProcess implements Listener {
                 if (instance.addonManager.addons.size()>0) {
                     event.getPlayer().sendMessage("Loaded addons:");
                     instance.addonManager.addons.forEach((k,v)->{
-                        event.getPlayer().sendMessage
-                                ((v.getMain().isEnabled?ChatColor.GREEN.toString():ChatColor.RED.toString())
-                                        + ChatColor.BOLD + " - " + k);
+                        TextComponent dash = new TextComponent(" - ");
+                        dash.setColor(ChatColor.WHITE);
+                        TextComponent tc = new TextComponent();
+                        tc.setText(k);
+                        tc.setColor(v.getMain().isEnabled?ChatColor.GREEN:ChatColor.RED);
+                        tc.setBold(true);
+                        tc.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                TextComponent.fromLegacyText(
+                                        ChatColor.WHITE + "Name: " + ChatColor.YELLOW + k + "\n" +
+                                        ChatColor.WHITE + "Main: " + ChatColor.YELLOW + v.getMain().getClass().getName() + "\n" +
+                                        ChatColor.WHITE + "Enabled? " + (v.getMain().isEnabled?ChatColor.GREEN+"Yes":ChatColor.RED+"No"))));
+                        event.getPlayer().spigot().sendMessage(dash,tc);
                     });
                     return;
                 }
@@ -40,10 +50,7 @@ public class CommandPreProcess implements Listener {
                     return;
                 }
                 if (instance.addonManager.addons.keySet().stream().anyMatch(addon->args[2].equals(addon))) {
-                    AddonManager.CachedAddon addon = instance.addonManager.addons.get(args[2]);
-                    addon.getMain().unload();
-                    addon.closeLoader();
-                    instance.addonManager.addons.remove(args[2]);
+                    instance.addonManager.unload(args[2]);
                     event.getPlayer().sendMessage(
                             ChatColor.GREEN + "Successfully unloaded " + ChatColor.WHITE + args[2]);
                     return;

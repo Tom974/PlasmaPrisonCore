@@ -48,6 +48,10 @@
                                     <pattern>de.leonhard.storage</pattern>
                                     <shadedPattern>me.fede1132.plasmaprisoncore.shaded.storage</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>de.tr7zw.changeme.nbtapi</pattern>
+                                    <shadedPattern>me.fede1132.plasmaprisoncore.shaded.nbtapi</shadedPattern>
+                                </relocation>
                             </relocations>
                         </configuration>
                     </execution>
@@ -83,6 +87,11 @@
             <id>mrivanplays-repo</id>
             <url>https://dl.bintray.com/mrivanplaysbg/com.github.mrivanplays/</url>
         </repository>
+        <repository>
+            <id>codemc-repo</id>
+            <url>https://repo.codemc.org/repository/maven-public/</url>
+            <layout>default</layout>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -116,6 +125,11 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>3.4.1</version>
+        </dependency>
+        <dependency>
+            <groupId>de.tr7zw</groupId>
+            <artifactId>item-nbt-api-plugin</artifactId>
+            <version>2.4.1</version>
         </dependency>
     </dependencies>
 </project>

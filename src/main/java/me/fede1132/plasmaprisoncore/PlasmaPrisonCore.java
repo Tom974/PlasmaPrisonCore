@@ -36,6 +36,7 @@ public final class PlasmaPrisonCore extends JavaPlugin {
     public void onEnable() {
         log("Plasma Prison Core v" + getDescription().getVersion());
         log("Loading files..");
+        database = new Database(this);
         config = LightningBuilder.fromFile(new File(getDataFolder(),"config")).addInputStream(getResource("config.yml")).setConfigSettings(ConfigSettings.PRESERVE_COMMENTS).createYaml();
         chat = LightningBuilder.fromFile(new File(getDataFolder(),"chat")).addInputStream(getResource("chat.yml")).setConfigSettings(ConfigSettings.PRESERVE_COMMENTS).createYaml();;
         messages = LightningBuilder.fromFile(new File(getDataFolder(), "messages")).addInputStream(getResource("messages.yml")).setConfigSettings(ConfigSettings.PRESERVE_COMMENTS).createYaml();
@@ -44,12 +45,12 @@ public final class PlasmaPrisonCore extends JavaPlugin {
         log("Loading events..");
         PluginManager pm = Bukkit.getPluginManager();
         pm.registerEvents(new CommandPreProcess(), this);
+        pm.registerEvents(new PlayerJoin(), this);
         log("Loading vault lib");
         setupVault();
         log("Starting tasks...");
         new Tasks(this);
         log("Loading managers..");
-        database = new Database(this);
         enchantManager = new EnchantManager();
         addonManager = new AddonManager();
         addonManager.reloadAddons();

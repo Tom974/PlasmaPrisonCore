@@ -1,8 +1,8 @@
 package me.fede1132.plasmaprisoncore.addons;
 
-import de.leonhard.storage.LightningBuilder;
 import de.leonhard.storage.Yaml;
 import me.fede1132.plasmaprisoncore.PlasmaPrisonCore;
+import me.fede1132.plasmaprisoncore.addons.cmds.XCommand;
 import me.fede1132.plasmaprisoncore.addons.enchant.Enchant;
 import me.fede1132.plasmaprisoncore.internal.util.SimpleEntry;
 import org.bukkit.Bukkit;
@@ -10,7 +10,9 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 public abstract class Addon {
     private static Addon instance;
@@ -19,6 +21,7 @@ public abstract class Addon {
     public boolean isEnabled = true;
     private Listener[] listeners;
     private String[] enchants;
+    private List<String> dependencies;
 
     public void init(String addon) {
         instance = this;
@@ -37,6 +40,14 @@ public abstract class Addon {
     public void registerListeners(Listener... listeners) {
         this.listeners = listeners;
         for (Listener listener : listeners) Bukkit.getPluginManager().registerEvents(listener,plugin);
+    }
+
+    public void registerCommands(XCommand... commands) {
+        // TODO
+    }
+
+    public void addDependencies(String... depend) {
+        this.dependencies = Arrays.asList(depend);
     }
 
     public void registerEnchants(Enchant... enchants) {
@@ -88,6 +99,10 @@ public abstract class Addon {
             unload();
             isEnabled=false;
         }
+    }
+
+    public List<String> getDependencies() {
+        return dependencies;
     }
 
     public static Addon getInstance() {

@@ -96,6 +96,12 @@ public class AddonManager {
         }
     }
 
+    public void unload(String addon) {
+        CachedAddon cache = addons.get(addon);
+        addons.values().stream().filter(filter->filter.getMain().getDependencies()!=null&&filter.getMain().getDependencies().contains(addon)).forEach(action->action.getMain().disable());
+        cache.getMain().disable();
+    }
+
     public boolean isAddonEnabled(String addon) {
         return addons.containsKey(addon)&&addons.get(addon).getMain().isEnabled;
     }
