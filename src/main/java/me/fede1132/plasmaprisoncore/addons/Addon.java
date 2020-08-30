@@ -1,17 +1,22 @@
 package me.fede1132.plasmaprisoncore.addons;
 
-import de.leonhard.storage.Yaml;
+import me.fede1132.f32lib.shaded.storage.Yaml;
 import me.fede1132.plasmaprisoncore.PlasmaPrisonCore;
 import me.fede1132.plasmaprisoncore.addons.cmds.XCommand;
-import me.fede1132.plasmaprisoncore.addons.enchant.Enchant;
+import me.fede1132.plasmaprisoncore.enchant.Enchant;
+import me.fede1132.plasmaprisoncore.enchant.EnchantManager;
+import me.fede1132.plasmaprisoncore.internal.hooks.HookPapi;
+import me.fede1132.plasmaprisoncore.internal.hooks.PapiPlaceholder;
 import me.fede1132.plasmaprisoncore.internal.util.SimpleEntry;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandMap;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 
 import java.io.File;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 public abstract class Addon {
@@ -43,47 +48,59 @@ public abstract class Addon {
     }
 
     public void registerCommands(XCommand... commands) {
-        // TODO
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, ()->{
+            try {
+                final Field commandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
+                commandMap.setAccessible(true);
+                CommandMap map = (CommandMap) commandMap.get(Bukkit.getServer());
+                Arrays.stream(commands).forEach(cmd->{
+                    map.register(cmd.getName(), cmd);
+                    plugin.getLogger().info("[PlasmaPrison - " + addon + "] Registered command /" + cmd.getName());
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
-    public void addDependencies(String... depend) {
-        this.dependencies = Arrays.asList(depend);
+    public void registerPapiPlaceholder(PapiPlaceholder... placeholders) {
+        HookPapi.inst().placeholders.addAll(Arrays.asList(placeholders));
     }
 
     public void registerEnchants(Enchant... enchants) {
         this.enchants = new String[enchants.length];
         Yaml yaml = setupPersonalConfig("enchants", null);
-        HashMap<String, Enchant> map = new HashMap<>();
+        List<Enchant> list = new ArrayList<>();
         for (int i=0;i<enchants.length;i++) {
             Enchant enchant = enchants[i];
             this.enchants[i] = enchant.getId();
             String path = "enchants." + enchant.getId() + ".";
-
-            if (!yaml.contains(path+"lore-color")) yaml.setDefault(path+"lore-color", enchant.loreColor);
-            else enchant.loreColor = yaml.getString(path+"lore-color");
-
-            if (!yaml.contains(path+"max-level")) yaml.setDefault(path+"max-level", enchant.max);
-            else enchant.max = yaml.getInt(path+"max-level");
-
-            if (!yaml.contains(path+"cost")) yaml.setDefault(path+"cost", enchant.cost);
-            else enchant.cost = yaml.getInt(path+"cost");
-
+            enchant.displayName = yaml.getOrSetDefault(path+"displayname", enchant.displayName);
+            enchant.loreColor = yaml.getOrSetDefault(path+"lore-color", enchant.loreColor);
+            enchant.max = yaml.getOrSetDefault(path+"max", enchant.max);
+            enchant.cost = yaml.getOrSetDefault(path+"cost", enchant.cost);
+            enchant.jsScript = yaml.getOrSetDefault(path+"script", "{current_cost} * 2 // placeholders: {current_level} {current_cost} ");
+            enchant.maxChance = yaml.getOrSetDefault(path+"max-chance", enchant.maxChance);
+            enchant.refundPercent = yaml.getOrSetDefault(path+"refund-percent", enchant.refundPercent);
             if (enchant.options!=null) for (int j=0;j<enchant.options.length;j++) {
                 SimpleEntry<String,Object> option = enchant.options[j];
-                if (!yaml.contains(path+option.getKey())) yaml.setDefault(path+option.getKey(),option.getValue());
-                else option.setValue(yaml.get(path+option.getKey()));
+                option.setValue(yaml.getOrSetDefault(path+option.getKey(), option.getValue()));
                 enchant.options[j] = option;
             }
-
-            map.put(enchant.getId(),enchant);
+            list.add(enchant);
         }
-        plugin.enchantManager.registeredEnchants.putAll(map);
+        EnchantManager manager = plugin.enchantManager;
+        list.forEach(manager::register);
     }
 
-    public Yaml setupPersonalConfig(String name, HashMap<String, Object> def) {
+    public String[] getEnchants() {
+        return enchants;
+    }
+
+    public Yaml setupPersonalConfig(String name, SimpleEntry<String, Object>... def) {
         String separator = File.separator;
         Yaml yaml = new Yaml(new File(plugin.getDataFolder()+separator+"configs"+separator+addon, name));
-        if (def!=null&&def.size()>0) def.forEach(yaml::setDefault);
+        if (def!=null&&def.length>0) Arrays.stream(def).forEach(value->yaml.setDefault(value.getKey(), value.getValue()));
         return yaml;
     }
 

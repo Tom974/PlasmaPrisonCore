@@ -1,11 +1,13 @@
 package me.fede1132.plasmaprisoncore;
 
-import de.leonhard.storage.LightningBuilder;
-import de.leonhard.storage.Yaml;
-import de.leonhard.storage.internal.settings.ConfigSettings;
+import me.fede1132.f32lib.shaded.storage.LightningBuilder;
+import me.fede1132.f32lib.shaded.storage.Yaml;
+import me.fede1132.f32lib.shaded.storage.internal.settings.ConfigSettings;
 import me.fede1132.plasmaprisoncore.addons.AddonManager;
-import me.fede1132.plasmaprisoncore.addons.enchant.EnchantManager;
+import me.fede1132.plasmaprisoncore.addons.basics.AddonBasics;
+import me.fede1132.plasmaprisoncore.enchant.EnchantManager;
 import me.fede1132.plasmaprisoncore.events.*;
+import me.fede1132.plasmaprisoncore.internal.hooks.HookPapi;
 import me.fede1132.plasmaprisoncore.internal.util.Database;
 import me.fede1132.plasmaprisoncore.util.Tasks;
 import net.milkbowl.vault.economy.Economy;
@@ -22,6 +24,7 @@ import java.net.URLClassLoader;
 
 public final class PlasmaPrisonCore extends JavaPlugin {
     private static PlasmaPrisonCore instance;
+    // Managers
     public Database database;
     public AddonManager addonManager;
     public EnchantManager enchantManager;
@@ -44,8 +47,8 @@ public final class PlasmaPrisonCore extends JavaPlugin {
         instance = this;
         log("Loading events..");
         PluginManager pm = Bukkit.getPluginManager();
-        pm.registerEvents(new CommandPreProcess(), this);
         pm.registerEvents(new PlayerJoin(), this);
+        pm.registerEvents(new BlockBreak(), this);
         log("Loading vault lib");
         setupVault();
         log("Starting tasks...");
@@ -53,7 +56,12 @@ public final class PlasmaPrisonCore extends JavaPlugin {
         log("Loading managers..");
         enchantManager = new EnchantManager();
         addonManager = new AddonManager();
-        addonManager.reloadAddons();
+        Bukkit.getScheduler().runTaskAsynchronously(this, ()->{
+            new AddonBasics().init("Basics");
+            instance.getLogger().info("(!) Successfully loaded addon Basics");
+            addonManager.reloadAddons();
+        });
+        new HookPapi().register();
     }
 
     @Override

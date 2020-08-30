@@ -1,17 +1,30 @@
 package me.fede1132.plasmaprisoncore.internal.util;
 
+import com.zaxxer.hikari.HikariDataSource;
 import me.fede1132.plasmaprisoncore.PlasmaPrisonCore;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class Database {
-    private final PlasmaPrisonCore instance;
+    private static Database inst;
+    private final HikariDataSource ds = new HikariDataSource();
     public Database(PlasmaPrisonCore instance) {
-        this.instance = instance;
+        inst = this;
+        File db = new File(instance.getDataFolder(),"database.db");
+        if (!db.exists()) {
+            instance.getDataFolder().mkdirs();
+            try {
+                db.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        ds.setJdbcUrl("jdbc:sqlite:"+db);
+        ds.setMaximumPoolSize(25);
+
         try (Connection connection = getConnection()) {
             connection.prepareStatement("CREATE TABLE IF NOT EXISTS users (\n" +
                     "  `uuid` CHAR(36) NOT NULL,\n" +
@@ -23,14 +36,15 @@ public class Database {
     }
 
     public Connection getConnection() {
-        File db = new File(instance.getDataFolder(),"database.db");
         try {
-            if (!db.exists()) db.createNewFile();
-            Class.forName("org.sqlite.JDBC");
-            return DriverManager.getConnection("jdbc:sqlite:" + db);
-        } catch (IOException | ClassNotFoundException | SQLException e) {
+            return ds.getConnection();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static Database inst() {
+        return inst;
     }
 }
