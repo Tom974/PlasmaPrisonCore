@@ -10,6 +10,7 @@ import me.fede1132.plasmaprisoncore.internal.util.SimpleEntry;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -23,10 +24,18 @@ import java.util.stream.Collectors;
 )
 public class CmdPlasmaPrison extends XCommand {
     private final PlasmaPrisonCore instance = PlasmaPrisonCore.getInstance();
+    private final String[] help = StringUtil.color(Arrays.asList(
+            "&fPossible commands:",
+            "&e/plasmaprison addons",
+            "&e/plasmaprison unload <addon>",
+            "&e/plasmaprison enchant <enchant_id> <level>",
+            "&e/plasmaprison enchants",
+            "&e/plasmaprison reload"
+    ));
     @Override
-    public void onCommand(Player player, String[] args) {
+    public void onCommand(CommandSender sender, Player player, String[] args) {
         if (args.length<1) {
-            player.sendMessage("Missing arguments..");
+            player.sendMessage(help);
             return;
         }
         switch (args[0].toLowerCase()) {
@@ -68,7 +77,10 @@ public class CmdPlasmaPrison extends XCommand {
                 return;
             }
             case "enchant": {
-                if (args.length<3||player.getInventory().getItemInMainHand()==null) return;
+                if (args.length<3||player.getInventory().getItemInMainHand()==null) {
+                    player.sendMessage(ChatColor.RED + "You must hold an item to enchant!");
+                    return;
+                }
                 if (!instance.enchantManager.registeredEnchants.containsKey(args[1])) {
                     player.sendMessage(args[1] + ChatColor.RED + " is not a valid enchantment!");
                     return;
@@ -117,6 +129,9 @@ public class CmdPlasmaPrison extends XCommand {
                 instance.addonManager.reloadAddons();
                 player.sendMessage("Addons reloaded");
             }
+            default:
+                player.sendMessage(help);
+                break;
         }
     }
 

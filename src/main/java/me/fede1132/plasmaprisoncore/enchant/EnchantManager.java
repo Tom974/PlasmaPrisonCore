@@ -26,14 +26,15 @@ public class EnchantManager {
     }
 
     public void register(Enchant enchant) {
-        double curr=enchant.cost;
+        long curr=enchant.cost;
         for (int i=0;i<=enchant.max;i++) {
             try {
-                double res = (Double) js.eval(Placeholder.replace(enchant.jsScript,
+                Object res = js.eval(Placeholder.replace(enchant.jsScript,
                         new Placeholder("current_level", i),
                         new Placeholder("current_cost", curr)));
-                curr=res;
-                enchant.costs.put(i, (int)res);
+                long value = res instanceof Long?(long)res:(res instanceof Double?Math.round((Double) res):(Integer) res);
+                curr=value;
+                enchant.costs.put(i, value);
             } catch (ScriptException e) {
                 e.printStackTrace();
             }

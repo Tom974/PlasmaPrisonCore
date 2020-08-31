@@ -23,7 +23,7 @@ public class AddonBasics extends Addon {
             PreparedStatement ps = connection.prepareStatement(
                     "CREATE TABLE IF NOT EXISTS tokens (\n" +
                             "  `uuid` VARCHAR(36) NOT NULL,\n" +
-                            "  `tokens` INT NOT NULL,\n" +
+                            "  `tokens` TEXT NOT NULL,\n" +
                             "  PRIMARY KEY (`uuid`));\n");
             ps.executeUpdate();
         } catch (SQLException throwables) {
@@ -54,7 +54,7 @@ public class AddonBasics extends Addon {
      * @param uuid Player UUID
      * @param i Tokens to set
      */
-    public void setTokens(UUID uuid, int i) {
+    public void setTokens(UUID uuid, long i) {
         try (Connection connection = plugin.database.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM tokens WHERE uuid = ?");
             ps.setString(1,uuid.toString());
@@ -62,7 +62,7 @@ public class AddonBasics extends Addon {
             PreparedStatement query = connection.prepareStatement(rs.next()?
                     "UPDATE tokens SET tokens = ? WHERE uuid = ?":
                     "INSERT INTO tokens (tokens,uuid) VALUES (?, ?)");
-            query.setInt(1,i);
+            query.setString(1,String.valueOf(i));
             query.setString(2,uuid.toString());
             query.executeUpdate();
         } catch (SQLException e) {
@@ -75,7 +75,7 @@ public class AddonBasics extends Addon {
      * @param uuid Player's UUID
      * @param i Token to add
      */
-    public void addTokens(UUID uuid, int i) {
+    public void addTokens(UUID uuid, long i) {
         try (Connection connection = plugin.database.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM tokens WHERE uuid = ?");
             ps.setString(1,uuid.toString());
@@ -83,7 +83,7 @@ public class AddonBasics extends Addon {
             PreparedStatement query = connection.prepareStatement(rs.next()?
                     "UPDATE tokens SET tokens = tokens + ? WHERE uuid = ?":
                     "INSERT INTO tokens (tokens,uuid) VALUES (?, ?)");
-            query.setInt(1,i);
+            query.setString(1,String.valueOf(i));
             query.setString(2,uuid.toString());
             query.executeUpdate();
         } catch (SQLException e) {
@@ -96,7 +96,7 @@ public class AddonBasics extends Addon {
      * @param uuid Player's UUID
      * @param i Tokens to remove
      */
-    public void removeTokens(UUID uuid, int i) {
+    public void removeTokens(UUID uuid, long i) {
         try (Connection connection = plugin.database.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM tokens WHERE uuid = ?");
             ps.setString(1,uuid.toString());
@@ -105,7 +105,7 @@ public class AddonBasics extends Addon {
             PreparedStatement query = connection.prepareStatement(b?
                     "UPDATE tokens SET tokens = tokens - ? WHERE uuid = ?":
                     "INSERT INTO tokens (tokens,uuid) VALUES (?, ?)");
-            query.setInt(1,b?i:0);
+            query.setString(1,b?String.valueOf(i):"0");
             query.setString(2,uuid.toString());
             query.executeUpdate();
         } catch (SQLException e) {

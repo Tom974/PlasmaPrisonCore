@@ -15,7 +15,7 @@ public abstract class Enchant {
     public int maxChance;
     public SimpleEntry<String,Object>[] options;
     public String jsScript;
-    public HashMap<Integer, Integer> costs = new HashMap<>();
+    public HashMap<Integer, Long> costs = new HashMap<>();
     public int refundPercent= 40;
     @SafeVarargs
     public Enchant(String id, String displayName, int max,
@@ -35,8 +35,8 @@ public abstract class Enchant {
 
     public abstract BreakResult onBreak(BlockBreakEvent event);
 
-    public int calcCost(int from, int to) {
-        return costs.entrySet().stream().filter(entry->entry.getKey()>from&&entry.getKey()<=to).mapToInt(Map.Entry::getValue).sum();
+    public long calcCost(int from, int to) {
+        return costs.entrySet().stream().filter(entry->entry.getKey()>from&&entry.getKey()<=to).mapToLong(Map.Entry::getValue).sum();
     }
 
 }

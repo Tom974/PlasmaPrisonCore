@@ -63,24 +63,22 @@ public abstract class XCommand extends Command {
         }
     }
 
-    public abstract void onCommand(Player p, String[] args);
+    public abstract void onCommand(CommandSender sender, Player player, String[] args);
     public abstract List<String> onTabComplete(Player p, String[] args);
 
     public boolean execute(CommandSender sender, String label, String[] args) {
-        if(!(sender instanceof Player)) {
+        if(info.requiresPlayer()&&!(sender instanceof Player)) {
             severe(sender, "Only players can use this command");
             return true;
         }
 
-        Player p = (Player) sender;
-
         //If the permission is "" it means that there is none and anyone can execute this command
-        if(!(info.perm().equals("")) && !(p.hasPermission(info.perm()))) {
-            severe(p, getPermissionMessage());
+        if(!(info.perm().equals("")) && !(sender.hasPermission(info.perm()))) {
+            severe(sender, getPermissionMessage());
             return true;
         }
 
-        onCommand(p, args);
+        onCommand(sender, sender instanceof Player?(Player)sender:null, args);
         return true;
     }
 

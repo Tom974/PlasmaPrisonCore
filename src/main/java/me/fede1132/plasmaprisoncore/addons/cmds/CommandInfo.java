@@ -14,5 +14,6 @@ public @interface CommandInfo {
     String perm() default ""; //If not specified anyone can use this command
     String[] usage() default {}; //A description of what arguments this command takes
     String[] aliases() default {}; //Different names that players can run this command from
+    boolean requiresPlayer() default true;
 
 }
