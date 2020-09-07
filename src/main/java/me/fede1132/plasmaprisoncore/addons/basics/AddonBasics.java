@@ -36,7 +36,7 @@ public class AddonBasics extends Addon {
      * @param uuid Player's UUID
      * @return Player's tokens
      */
-    public int getTokens(UUID uuid) {
+    public long getTokens(UUID uuid) {
         try (Connection connection = plugin.database.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM tokens WHERE uuid = ?");
             ps.setString(1,uuid.toString());
