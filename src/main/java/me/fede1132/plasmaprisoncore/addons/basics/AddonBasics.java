@@ -2,8 +2,10 @@ package me.fede1132.plasmaprisoncore.addons.basics;
 
 import me.fede1132.plasmaprisoncore.addons.Addon;
 import me.fede1132.plasmaprisoncore.addons.basics.enchant.*;
+import me.fede1132.plasmaprisoncore.addons.basics.events.TokenChangeEvent;
 import me.fede1132.plasmaprisoncore.addons.basics.listeners.AutoSeller;
 import me.fede1132.plasmaprisoncore.addons.basics.listeners.ItemHeld;
+import org.bukkit.Bukkit;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -54,7 +56,7 @@ public class AddonBasics extends Addon {
      * @param uuid Player UUID
      * @param i Tokens to set
      */
-    public void setTokens(UUID uuid, long i) {
+    public void setTokensWithoutFiringEvent(UUID uuid, long i) {
         try (Connection connection = plugin.database.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM tokens WHERE uuid = ?");
             ps.setString(1,uuid.toString());
@@ -70,12 +72,20 @@ public class AddonBasics extends Addon {
         }
     }
 
+
+    public void setTokens(UUID uuid, long i) {
+        TokenChangeEvent event = new TokenChangeEvent(Bukkit.getPlayer(uuid), TokenChangeEvent.ChangeAction.SET, i);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return;
+        setTokensWithoutFiringEvent(uuid, event.getDifference());
+    }
+
     /** Add player's tokens
      *
      * @param uuid Player's UUID
      * @param i Token to add
      */
-    public void addTokens(UUID uuid, long i) {
+    public void addTokensWithoutFiringEvent(UUID uuid, long i) {
         try (Connection connection = plugin.database.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM tokens WHERE uuid = ?");
             ps.setString(1,uuid.toString());
@@ -91,12 +101,19 @@ public class AddonBasics extends Addon {
         }
     }
 
+    public void addTokens(UUID uuid, long i) {
+        TokenChangeEvent event = new TokenChangeEvent(Bukkit.getPlayer(uuid), TokenChangeEvent.ChangeAction.ADD, i);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return;
+        addTokensWithoutFiringEvent(uuid, event.getDifference());
+    }
+
     /** Remove player tokens
      *
      * @param uuid Player's UUID
      * @param i Tokens to remove
      */
-    public void removeTokens(UUID uuid, long i) {
+    public void removeTokensWithoutFiringEvent(UUID uuid, long i) {
         try (Connection connection = plugin.database.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM tokens WHERE uuid = ?");
             ps.setString(1,uuid.toString());
@@ -111,6 +128,13 @@ public class AddonBasics extends Addon {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public void removeTokens(UUID uuid, long i) {
+        TokenChangeEvent event = new TokenChangeEvent(Bukkit.getPlayer(uuid), TokenChangeEvent.ChangeAction.REMOVE, i);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return;
+        removeTokensWithoutFiringEvent(uuid, event.getDifference());
     }
 
     public static AddonBasics getInstance() {
