@@ -1,37 +1,39 @@
 package me.fede1132.plasmaprisoncore.addons.basics.listeners;
 
 import me.clip.autosell.AutoSellAPI;
-import me.clip.autosell.objects.Multiplier;
+import me.clip.autosell.SellHandler;
 import me.fede1132.plasmaprisoncore.enchant.BreakResult;
 import me.fede1132.plasmaprisoncore.enchant.EnchantManager;
+import me.fede1132.plasmaprisoncore.events.BlockBreak;
 import me.fede1132.plasmaprisoncore.internal.events.FixedBreakBlockEvent;
-import net.milkbowl.vault.economy.Economy;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class AutoSeller implements Listener {
     @EventHandler
     public void onFixedBreak(FixedBreakBlockEvent event) {
-        int lvl = EnchantManager.getInst().getEnchantLevel(event.getPlayer().getInventory().getItemInMainHand(), "fortune");
-        int give = 1;
-        if (lvl>0) give = new Random().nextInt(lvl);
-        double money=0;
-        for (BreakResult result : event.getResults()) {
-            if (result==null) continue;
-            for (Material old : result.getOldBlocks()) {
-                if (old==Material.AIR) continue;
-                if (AutoSellAPI.hasShop(event.getPlayer())) {
-                    money+=AutoSellAPI.getCurrentShop(event.getPlayer()).getBaseWorth(new ItemStack(old, give));
-                }
-            }
+        if (!AutoSellAPI.hasShop(event.getPlayer())) {
+            event.getPlayer().sendMessage("DEBUG >> no shop");
+            return;
         }
-        Multiplier multiplier = AutoSellAPI.getMultiplier(event.getPlayer());
-        money*=multiplier==null?1:multiplier.getMultiplier()+1;
-        Bukkit.getServicesManager().getRegistration(Economy.class).getProvider().depositPlayer(event.getPlayer(), money);
+        int lvl = EnchantManager.getInst().getEnchantLevel(event.getPlayer().getInventory().getItemInMainHand(), "fortune");
+        List<ItemStack> toSell = event.getResults()
+                .stream() // being of the stream
+                .filter(Objects::nonNull) // null check
+                .map(BreakResult::getOldBlocks) // map to stream of list of materials
+                .filter(Objects::nonNull) // null check
+                .flatMap(List::stream) // map to stream of materials
+                .filter(Objects::nonNull) // null check
+                .filter(material -> material!=Material.AIR&&material.isBlock()) // filter for material that is not AIR or it isn't a block
+                .map(material->new ItemStack(material, lvl>0?new Random().nextInt(lvl):1)) // map to stream ot itemstack
+                .collect(Collectors.toList()); // collect everything to a simple list
+        SellHandler.sellItems(event.getPlayer(), toSell, AutoSellAPI.getCurrentShop(event.getPlayer()));
     }
 }

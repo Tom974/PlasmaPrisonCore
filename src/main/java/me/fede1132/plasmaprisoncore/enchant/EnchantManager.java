@@ -50,6 +50,14 @@ public class EnchantManager {
         return plasmaPrison.getCompound("enchants").hasKey(id);
     }
 
+    public NBTCompound getEnchantCompound(ItemStack item) {
+        NBTItem nbti = new NBTItem(item);
+        if (!nbti.hasKey("PlasmaPrison")) return nbti.addCompound("PlasmaPrison");
+        NBTCompound plasmaPrison = nbti.getCompound("PlasmaPrison");
+        if (!plasmaPrison.hasKey("enchants")) plasmaPrison.addCompound("enchants");
+        return plasmaPrison.getCompound("enchants");
+    }
+
     public int getEnchantLevel(ItemStack item, String id) {
         if (item==null||item.getType()==Material.AIR) return 0;
         NBTItem nbti = new NBTItem(item);
