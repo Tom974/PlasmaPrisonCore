@@ -19,10 +19,7 @@ import java.util.stream.Collectors;
 public class AutoSeller implements Listener {
     @EventHandler
     public void onFixedBreak(FixedBreakBlockEvent event) {
-        if (!AutoSellAPI.hasShop(event.getPlayer())) {
-            event.getPlayer().sendMessage("DEBUG >> no shop");
-            return;
-        }
+        if (!AutoSellAPI.hasShop(event.getPlayer())) return;
         int lvl = EnchantManager.getInst().getEnchantLevel(event.getPlayer().getInventory().getItemInMainHand(), "fortune");
         List<ItemStack> toSell = event.getResults()
                 .stream() // being of the stream
