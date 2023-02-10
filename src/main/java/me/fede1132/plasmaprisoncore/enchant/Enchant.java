@@ -10,16 +10,15 @@ public abstract class Enchant {
     private final String id;
     public String displayName;
     public int max;
-    public int cost;
+    public long cost;
     public String loreColor;
     public int maxChance;
     public SimpleEntry<String,Object>[] options;
     public String jsScript;
     public HashMap<Integer, Long> costs = new HashMap<>();
-    public int refundPercent= 40;
+    public int refundPercent = 40;
     @SafeVarargs
-    public Enchant(String id, String displayName, int max,
-                   int cost, String loreColor, int maxChance, SimpleEntry<String,Object>... options) {
+    public Enchant(String id, String displayName, int max, int cost, String loreColor, int maxChance, SimpleEntry<String,Object>... options) {
         this.id = id;
         this.displayName = displayName;
         this.max = max;

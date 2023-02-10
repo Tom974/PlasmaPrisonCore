@@ -1,6 +1,6 @@
 package me.fede1132.plasmaprisoncore.addons;
 
-import me.fede1132.f32lib.shaded.storage.Yaml;
+import de.leonhard.storage.Yaml;
 import me.fede1132.plasmaprisoncore.PlasmaPrisonCore;
 import me.fede1132.plasmaprisoncore.addons.cmds.XCommand;
 import me.fede1132.plasmaprisoncore.enchant.Enchant;

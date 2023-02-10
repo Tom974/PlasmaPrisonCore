@@ -1,8 +1,8 @@
 package me.fede1132.plasmaprisoncore;
 
-import me.fede1132.f32lib.shaded.storage.LightningBuilder;
-import me.fede1132.f32lib.shaded.storage.Yaml;
-import me.fede1132.f32lib.shaded.storage.internal.settings.ConfigSettings;
+import de.leonhard.storage.SimplixBuilder;
+import de.leonhard.storage.Yaml;
+import de.leonhard.storage.internal.settings.ConfigSettings;
 import me.fede1132.plasmaprisoncore.addons.AddonManager;
 import me.fede1132.plasmaprisoncore.addons.basics.AddonBasics;
 import me.fede1132.plasmaprisoncore.enchant.EnchantManager;
@@ -24,25 +24,26 @@ import java.net.URLClassLoader;
 
 public final class PlasmaPrisonCore extends JavaPlugin {
     private static PlasmaPrisonCore instance;
-    // Managers
     public Database database;
     public AddonManager addonManager;
     public EnchantManager enchantManager;
-    // Files
     public Yaml config;
     public Yaml chat;
     public Yaml messages;
-    // Vault
     public Economy econ;
+
+    public static PlasmaPrisonCore getCore() {
+        return instance;
+    }
 
     @Override
     public void onEnable() {
         log("Plasma Prison Core v" + getDescription().getVersion());
         log("Loading files..");
         database = new Database(this);
-        config = LightningBuilder.fromFile(new File(getDataFolder(),"config")).addInputStream(getResource("config.yml")).setConfigSettings(ConfigSettings.PRESERVE_COMMENTS).createYaml();
-        chat = LightningBuilder.fromFile(new File(getDataFolder(),"chat")).addInputStream(getResource("chat.yml")).setConfigSettings(ConfigSettings.PRESERVE_COMMENTS).createYaml();;
-        messages = LightningBuilder.fromFile(new File(getDataFolder(), "messages")).addInputStream(getResource("messages.yml")).setConfigSettings(ConfigSettings.PRESERVE_COMMENTS).createYaml();
+        config = SimplixBuilder.fromFile(new File(getDataFolder(),"config")).addInputStream(getResource("config.yml")).setConfigSettings(ConfigSettings.PRESERVE_COMMENTS).createYaml();
+        chat = SimplixBuilder.fromFile(new File(getDataFolder(),"chat")).addInputStream(getResource("chat.yml")).setConfigSettings(ConfigSettings.PRESERVE_COMMENTS).createYaml();;
+        messages = SimplixBuilder.fromFile(new File(getDataFolder(), "messages")).addInputStream(getResource("messages.yml")).setConfigSettings(ConfigSettings.PRESERVE_COMMENTS).createYaml();
         log("Loading command and hooks..");
         instance = this;
         log("Loading events..");
@@ -93,14 +94,12 @@ public final class PlasmaPrisonCore extends JavaPlugin {
                 .getSystemClassLoader();
         final Class<URLClassLoader> sysclass = URLClassLoader.class;
         try {
-            final Method method = sysclass.getDeclaredMethod("addURL",
-                    new Class[] { URL.class });
+            final Method method = sysclass.getDeclaredMethod("addURL", URL.class);
             method.setAccessible(true);
-            method.invoke(sysloader, new Object[] { url });
+            method.invoke(sysloader, url);
         } catch (final Throwable t) {
             t.printStackTrace();
-            throw new IOException("Error adding " + url
-                    + " to system classloader");
+            throw new IOException("Error adding " + url + " to system classloader");
         }
     }
 }

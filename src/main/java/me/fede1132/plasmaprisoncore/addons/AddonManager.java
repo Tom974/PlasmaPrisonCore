@@ -83,7 +83,7 @@ public class AddonManager {
                         warnLog(name, "Could not find a valid Addon class at path " + clazz);
                         return;
                     }
-                    Addon instance = (Addon) wrap.newInstance();
+                    Addon instance = (Addon) wrap.getDeclaredConstructor().newInstance();
                     instance.init(name);
                     this.addons.put(name, new CachedAddon(entry.getKey(), instance));
                     this.instance.getLogger().info("(!) Successfully loaded addon " + name);

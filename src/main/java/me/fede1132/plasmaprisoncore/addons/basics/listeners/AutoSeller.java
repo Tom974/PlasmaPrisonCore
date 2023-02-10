@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 public class AutoSeller implements Listener {
     @EventHandler
     public void onFixedBreak(FixedBreakBlockEvent event) {
+        // handle explosion drops
         if (!AutoSellAPI.hasShop(event.getPlayer())) return;
         int lvl = EnchantManager.getInst().getEnchantLevel(event.getPlayer().getInventory().getItemInMainHand(), "fortune");
         List<ItemStack> toSell = event.getResults()
@@ -28,7 +29,7 @@ public class AutoSeller implements Listener {
                 .filter(Objects::nonNull) // null check
                 .flatMap(List::stream) // map to stream of materials
                 .filter(Objects::nonNull) // null check
-                .filter(material -> material!=Material.AIR&&material.isBlock()) // filter for material that is not AIR or it isn't a block
+                .filter(material -> material != Material.AIR && material.isBlock()) // filter for material that is not AIR or it isn't a block
                 .map(material->new ItemStack(material, lvl>0?new Random().nextInt(lvl):1)) // map to stream ot itemstack
                 .collect(Collectors.toList()); // collect everything to a simple list
         SellHandler.sellItems(event.getPlayer(), toSell, AutoSellAPI.getCurrentShop(event.getPlayer()));

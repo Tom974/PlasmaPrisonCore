@@ -1,13 +1,17 @@
 package me.fede1132.plasmaprisoncore.enchant;
 
-import me.fede1132.f32lib.other.Placeholder;
-import me.fede1132.f32lib.other.StringUtil;
-import me.fede1132.f32lib.shaded.nbt.NBTCompound;
-import me.fede1132.f32lib.shaded.nbt.NBTItem;
+import me.clip.placeholderapi.PlaceholderAPI;
+import me.fede1132.plasmaprisoncore.Placeholder;
+import de.tr7zw.nbtapi.NBTCompound;
+import de.tr7zw.nbtapi.NBTItem;
 import me.fede1132.plasmaprisoncore.addons.basics.enchant.EnchantEfficiency;
 import me.fede1132.plasmaprisoncore.addons.basics.enchant.EnchantFortune;
+import me.fede1132.plasmaprisoncore.internal.hooks.PapiPlaceholder;
+
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -29,9 +33,7 @@ public class EnchantManager {
         long curr=enchant.cost;
         for (int i=0;i<=enchant.max;i++) {
             try {
-                Object res = js.eval(Placeholder.replace(enchant.jsScript,
-                        new Placeholder("current_level", i),
-                        new Placeholder("current_cost", curr)));
+                Object res = js.eval(Placeholder.replace(enchant.jsScript, new Placeholder("current_level", i), new Placeholder("current_cost", curr)));
                 long value = res instanceof Long?(long)res:(res instanceof Double?Math.round((Double) res):(Integer) res);
                 curr=value;
                 enchant.costs.put(i, value);
@@ -44,45 +46,92 @@ public class EnchantManager {
 
     public boolean hasEnchant(ItemStack item, String id) {
         NBTItem nbti = new NBTItem(item);
-        if (!nbti.hasKey("PlasmaPrison")) return false;
+        if (!nbti.hasTag("PlasmaPrison")) return false;
         NBTCompound plasmaPrison = nbti.getCompound("PlasmaPrison");
-        if (!plasmaPrison.hasKey("enchants")) return false;
-        return plasmaPrison.getCompound("enchants").hasKey(id);
+        if (!plasmaPrison.hasTag("enchants")) return false;
+        return plasmaPrison.getCompound("enchants").hasTag(id);
     }
 
     public NBTCompound getEnchantCompound(ItemStack item) {
         NBTItem nbti = new NBTItem(item);
-        if (!nbti.hasKey("PlasmaPrison")) return nbti.addCompound("PlasmaPrison");
+        if (!nbti.hasTag("PlasmaPrison")) return nbti.addCompound("PlasmaPrison");
         NBTCompound plasmaPrison = nbti.getCompound("PlasmaPrison");
-        if (!plasmaPrison.hasKey("enchants")) plasmaPrison.addCompound("enchants");
+        if (!plasmaPrison.hasTag("enchants")) plasmaPrison.addCompound("enchants");
         return plasmaPrison.getCompound("enchants");
     }
 
     public int getEnchantLevel(ItemStack item, String id) {
         if (item==null||item.getType()==Material.AIR) return 0;
         NBTItem nbti = new NBTItem(item);
-        if (!nbti.hasKey("PlasmaPrison")) return 0;
+        if (!nbti.hasTag("PlasmaPrison")) return 0;
         NBTCompound plasmaPrison = nbti.getCompound("PlasmaPrison");
-        if (!plasmaPrison.hasKey("enchants")) return 0;
+        if (!plasmaPrison.hasTag("enchants")) return 0;
         NBTCompound enchants = plasmaPrison.getCompound("enchants");
-        return enchants.hasKey(id)?enchants.getInteger(id):0;
+        return enchants.hasTag(id)?enchants.getInteger(id):0;
     }
 
-    public ItemStack enchant(ItemStack item, Enchant enchant, int level) {
+    // TODO: Fix disenchanter
+    // public ItemStack removeEnchant(ItemStack item, Enchant enchant) {
+    //     NBTItem nbti = new NBTItem(item);
+    //     if (!nbti.hasTag("PlasmaPrison")) nbti.addCompound("PlasmaPrison");
+    //     NBTCompound plasmaPrison = nbti.getCompound("PlasmaPrison");
+    //     if (!plasmaPrison.hasTag("enchants")) plasmaPrison.addCompound("enchants");
+    //     NBTCompound enchants = plasmaPrison.getCompound("enchants");
+    //     enchants.setInteger(enchant.getId(), 0);
+    //     if (enchants.hasTag(enchant.getId())) enchants.removeKey(enchant.getId());
+    //     item = nbti.getItem();
+    //     ItemMeta meta = item.getItemMeta();
+    //     List<String> lore = meta.getLore()==null?new ArrayList<>():meta.getLore();
+    //     List<String> list = new ArrayList<>(enchants.getKeys());
+    //     Collections.sort(list);
+    //     if (enchants.hasTag(enchant.getId())) {
+    //         enchants.removeKey(enchant.getId());
+    //         list=new ArrayList<>(enchants.getKeys());
+    //     }
+    //     meta.setLore(lore);
+    //     meta.setUnbreakable(true);
+    //     meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE);
+    //     item.setItemMeta(meta);
+    //     if (item.getEnchantments().size()==0) {
+    //         item.addEnchantment(Enchantment.DURABILITY, 1);
+    //     }
+
+    //     return item;
+    // }
+
+    public ItemStack updatePickaxeLore(ItemStack item, Player player) {
+        player.sendMessage("A be see");
+        // update the lore
+        ItemMeta meta = item.getItemMeta();
+        List<String> lore = meta.getLore()==null?new ArrayList<>():meta.getLore();
+        List<String> list = new ArrayList<>(getEnchantCompound(item).getKeys());
+        Collections.sort(list);
+        player.sendMessage("A be see 2");
+        String parsedString = PlaceholderAPI.setPlaceholders(player, "%leveltools_progress_bar%");
+        lore.add(parsedString);
+        meta.setLore(lore);
+        meta.setUnbreakable(true);
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE);
+        item.setItemMeta(meta);
+        player.sendMessage("A be see 3");
+        return item;
+    }
+
+    public ItemStack enchant(ItemStack item, Enchant enchant, int level, Player player) {
         NBTItem nbti = new NBTItem(item);
-        if (!nbti.hasKey("PlasmaPrison")) nbti.addCompound("PlasmaPrison");
+        if (!nbti.hasTag("PlasmaPrison")) nbti.addCompound("PlasmaPrison");
         NBTCompound plasmaPrison = nbti.getCompound("PlasmaPrison");
-        if (!plasmaPrison.hasKey("enchants")) plasmaPrison.addCompound("enchants");
+        if (!plasmaPrison.hasTag("enchants")) plasmaPrison.addCompound("enchants");
         NBTCompound enchants = plasmaPrison.getCompound("enchants");
         if (level>0) enchants.setInteger(enchant.getId(), level);
-        else if (enchants.hasKey(enchant.getId())) enchants.removeKey(enchant.getId());
+        else if (enchants.hasTag(enchant.getId())) enchants.removeKey(enchant.getId());
         item = nbti.getItem();
         ItemMeta meta = item.getItemMeta();
         List<String> lore = meta.getLore()==null?new ArrayList<>():meta.getLore();
         List<String> list = new ArrayList<>(enchants.getKeys());
         Collections.sort(list);
         List<String> sublist = lore.subList(0, Math.min(list.size(), lore.size()));
-        if (level<=0&&enchants.hasKey(enchant.getId())) {
+        if (level<=0&&enchants.hasTag(enchant.getId())) {
             enchants.removeKey(enchant.getId());
             list=new ArrayList<>(enchants.getKeys());
         }
@@ -91,6 +140,9 @@ public class EnchantManager {
             Enchant e1 = registeredEnchants.get(s);
             sublist.add(getText(e1.loreColor, e1.displayName, enchants.getInteger(s)));
         }
+        
+        // String parsedString = PlaceholderAPI.setPlaceholders(player, "%leveltools_progress_bar%");
+        // sublist.add(parsedString);
         meta.setLore(lore);
         meta.setUnbreakable(true);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE);
@@ -111,6 +163,7 @@ public class EnchantManager {
     }
 
     private String getText(String loreColor, String displayName, int level) {
-        return StringUtil.color("&" + loreColor + displayName + " " + level);
+        // return ChatColor.translateAlternateColorCodes('&', loreColor + displayName + " " + level);
+        return ChatColor.translateAlternateColorCodes('&', loreColor.replace("%name%", displayName).replace("%level%", level + ""));
     }
 }

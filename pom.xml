@@ -43,8 +43,8 @@
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <relocations>
                                 <relocation>
-                                    <pattern>com.gmail.fendt873.f32lib</pattern>
-                                    <shadedPattern>me.fede1132.plasmaprisoncore.shaded.f32lib</shadedPattern>
+                                    <pattern>de.tr7zw.changeme.nbtapi</pattern>
+                                    <shadedPattern>me.fede1132.plasmaprisoncore.shaded.nbtapi</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
@@ -62,8 +62,8 @@
 
     <repositories>
         <repository>
-            <id>fede1132</id>
-            <url>https://repo.fede1132.me/artifactory/private/</url>
+            <id>jitpack</id>
+            <url>https://jitpack.io</url>
         </repository>
         <repository>
             <id>papermc-repo</id>
@@ -72,14 +72,6 @@
         <repository>
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
-        </repository>
-        <repository>
-            <id>public</id>
-            <url>https://repo.fede1132.me/artifactory/public/</url>
-        </repository>
-        <repository>
-            <id>jitpack</id>
-            <url>https://jitpack.io</url>
         </repository>
         <repository>
             <id>placeholderapi</id>
@@ -97,7 +89,24 @@
     </repositories>
 
     <dependencies>
-        <!-- Internal -->
+        <dependency>
+            <groupId>com.github.Simplix-Softworks</groupId>
+            <artifactId>SimplixStorage</artifactId>
+            <version>3.2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP-java9ea</artifactId>
+            <version>2.6.1</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
@@ -106,12 +115,11 @@
             <systemPath>${basedir}/lib/spigot-1.12.2.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>me.fede1132</groupId>
-            <artifactId>F32Lib</artifactId>
-            <version>3.0.0.3</version>
+            <groupId>de.tr7zw</groupId>
+            <artifactId>item-nbt-api-plugin</artifactId>
+            <version>2.11.1</version>
+            <scope>provided</scope>
         </dependency>
-
-        <!-- Libs -->
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
