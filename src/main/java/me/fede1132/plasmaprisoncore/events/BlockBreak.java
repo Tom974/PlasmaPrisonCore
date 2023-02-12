@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 public class BlockBreak implements Listener {
     private final PlasmaPrisonCore core = PlasmaPrisonCore.getInstance();
-    private final EnchantManager instance = EnchantManager.getInst();
     @EventHandler(priority = EventPriority.HIGH)
     public void onBreak(BlockBreakEvent event) {
         event.setDropItems(false);
@@ -48,16 +47,15 @@ public class BlockBreak implements Listener {
                 .map(material->new ItemStack(material.getType(), lvlFortune > 0 ? new Random().nextInt(lvlFortune) : 1)) // map to stream ot itemstack
                 .collect(Collectors.toList()); // collect everything to a simple list
         
-        int lvlMerchant = this.instance.getEnchantLevel(event.getPlayer().getInventory().getItemInMainHand(), "merchant");
-        Enchant enchant = this.instance.registeredEnchants.get("merchant");
-        if (chance(enchant.max,lvlMerchant,enchant.maxChance)) {
-            // merchant proc! double the items
-            event.getPlayer().sendMessage("Merchant procced");
-            toSell.addAll(toSell);
-            SellHandler.sellItems(event.getPlayer(), toSell, AutoSellAPI.getCurrentShop(event.getPlayer()));
-        } else {
-            SellHandler.sellItems(event.getPlayer(), toSell, AutoSellAPI.getCurrentShop(event.getPlayer()));
+        int lvlMerchant =EnchantManager.getInst().getEnchantLevel(event.getPlayer().getInventory().getItemInMainHand(), "merchant");
+        if (lvlMerchant > 0) {
+            Enchant enchant = EnchantManager.getInst().registeredEnchants.get("merchant");
+            if (chance(enchant.max, lvlMerchant, enchant.maxChance)) {
+                // merchant proc! double the items
+                toSell.addAll(toSell);
+            }
         }
+        SellHandler.sellItems(event.getPlayer(), toSell, AutoSellAPI.getCurrentShop(event.getPlayer()));
     }
 
     private boolean chance(int max, int lvl, int maxChance) {
