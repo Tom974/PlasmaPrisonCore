@@ -54,7 +54,7 @@ public class AddonBasics extends Addon {
     public long getTokens(UUID uuid) {
         try (Connection connection = plugin.database.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM tokens WHERE uuid = ?");
-            ps.setString(1,uuid.toString());
+            ps.setString(1, uuid.toString());
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 long tokens = rs.getLong("tokens");
