@@ -120,7 +120,7 @@ public class HookPapi extends PlaceholderExpansion {
             int currentlevel = this.manager.getEnchantLevel(hand, enchant_name);
             if (currentlevel == 0) return "0";
             double percent = ((double) currentlevel / (double) ench.max) * 100D;
-            player.sendMessage("Currentlevel:  " + currentlevel + " Max: " + ench.max + " Percent: " + percent);
+            // player.sendMessage("Currentlevel:  " + currentlevel + " Max: " + ench.max + " Percent: " + percent);
             if (percent>ench.maxChance) percent = ench.maxChance;
             return String.valueOf(percent);
         } 
