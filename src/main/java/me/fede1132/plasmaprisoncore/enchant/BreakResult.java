@@ -1,7 +1,6 @@
 package me.fede1132.plasmaprisoncore.enchant;
 
 import org.bukkit.Material;
-
 import java.util.List;
 
 public class BreakResult {

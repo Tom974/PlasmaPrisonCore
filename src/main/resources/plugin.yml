@@ -5,5 +5,5 @@ prefix: PlasmaPrison
 load: POSTWORLD
 authors: [PlasmaDevTeam]
 description: Plasma custom prison core
-softdepend: [Essentials, XConomy, WorldEdit, WorldGuard, FastAsyncWorldEdit, CrazyCrates]
+softdepend: [Essentials, Vault, WorldEdit, WorldGuard, FastAsyncWorldEdit]
 depend: [Vault, PlaceholderAPI, AutoSell, Essentials]

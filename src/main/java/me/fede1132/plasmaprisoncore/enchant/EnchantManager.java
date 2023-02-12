@@ -6,7 +6,7 @@ import de.tr7zw.nbtapi.NBTCompound;
 import de.tr7zw.nbtapi.NBTItem;
 import me.fede1132.plasmaprisoncore.addons.basics.enchant.EnchantEfficiency;
 import me.fede1132.plasmaprisoncore.addons.basics.enchant.EnchantFortune;
-import me.fede1132.plasmaprisoncore.internal.hooks.PapiPlaceholder;
+// import me.fede1132.plasmaprisoncore.internal.hooks.PapiPlaceholder;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

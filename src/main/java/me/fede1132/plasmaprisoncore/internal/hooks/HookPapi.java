@@ -10,20 +10,14 @@ import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.node.Node;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.permissions.Permission;
-import org.bukkit.permissions.PermissionDefault;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
 
 public class HookPapi extends PlaceholderExpansion {
     private static HookPapi instance;
-    public List<PapiPlaceholder> placeholders = new ArrayList<>();
+    // public List<PapiPlaceholder> placeholders = new ArrayList<>();
     private final AddonBasics basics = AddonBasics.getInstance();
     private final EnchantManager manager = EnchantManager.getInst();
     public HookPapi() {
@@ -96,10 +90,10 @@ public class HookPapi extends PlaceholderExpansion {
             
             int to = (amount + currentlevel);
             if (to >= enchant.max) to = enchant.max - 1;
-            player.sendMessage("currentlevel: " + currentlevel);
-            player.sendMessage("max: " + enchant.max);
-            player.sendMessage("amount: " + amount);
-            player.sendMessage("to: " + to);
+            // player.sendMessage("currentlevel: " + currentlevel);
+            // player.sendMessage("max: " + enchant.max);
+            // player.sendMessage("amount: " + amount);
+            // player.sendMessage("to: " + to);
             long cost = enchant.calcCost(currentlevel, to);
             return cost + "";
         } else if (params.contains("_cost")) {

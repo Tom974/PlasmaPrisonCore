@@ -6,7 +6,7 @@ import me.fede1132.plasmaprisoncore.addons.cmds.XCommand;
 import me.fede1132.plasmaprisoncore.enchant.Enchant;
 import me.fede1132.plasmaprisoncore.enchant.EnchantManager;
 import me.fede1132.plasmaprisoncore.internal.hooks.HookPapi;
-import me.fede1132.plasmaprisoncore.internal.hooks.PapiPlaceholder;
+// import me.fede1132.plasmaprisoncore.internal.hooks.PapiPlaceholder;
 import me.fede1132.plasmaprisoncore.internal.util.SimpleEntry;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
@@ -63,9 +63,9 @@ public abstract class Addon {
         });
     }
 
-    public void registerPapiPlaceholder(PapiPlaceholder... placeholders) {
-        HookPapi.inst().placeholders.addAll(Arrays.asList(placeholders));
-    }
+    // public void registerPapiPlaceholder(PapiPlaceholder... placeholders) {
+    //     HookPapi.inst().placeholders.addAll(Arrays.asList(placeholders));
+    // }
 
     public void registerEnchants(Enchant... enchants) {
         this.enchants = new String[enchants.length];
