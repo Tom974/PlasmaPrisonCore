@@ -26,8 +26,7 @@ public class AddonBasics extends Addon {
         registerEnchants(new EnchantEfficiency(), new EnchantFortune(), new EnchantHaste(), new EnchantJump(), new EnchantSpeed());
         registerListeners(new AutoSeller(), new ItemHeld());
         registerCommands(new CmdPlasmaPrison());
-        config = setupPersonalConfig("config",
-                new SimpleEntry<>("max-tokens", "9223372036854775807"));
+        config = setupPersonalConfig("config", new SimpleEntry<>("max-tokens", "9223372036854775807"));
         try {
             MAX_TOKENS = Long.valueOf(config.getString("max-tokens"));
         } catch (NumberFormatException e) {
@@ -111,7 +110,7 @@ public class AddonBasics extends Addon {
             PreparedStatement query = connection.prepareStatement(rs.next()?
                     "UPDATE tokens SET tokens = ? WHERE uuid = ?":
                     "INSERT INTO tokens (tokens,uuid) VALUES (?, ?)");
-            i = i + rs.getLong("tokens");
+            i = rs.getLong("tokens") + i;
             if (i > MAX_TOKENS) {
                 i = MAX_TOKENS;
             } else if (i < 0) {
@@ -147,9 +146,10 @@ public class AddonBasics extends Addon {
             ResultSet rs = ps.executeQuery();
             boolean b = rs.next();
             PreparedStatement query = connection.prepareStatement(b ? "UPDATE tokens SET tokens = ? WHERE uuid = ?" : "INSERT INTO tokens (tokens,uuid) VALUES (?, ?)");
-            i = i - rs.getLong("tokens");
+
+            i = rs.getLong("tokens") - i;
             if (i < 0) i = 0;
-            query.setString(1,b ? String.valueOf(i) : "0");
+            query.setString(1, b ? String.valueOf(i) : "0");
             query.setString(2,uuid.toString());
             query.executeUpdate();
         } catch (SQLException e) {
