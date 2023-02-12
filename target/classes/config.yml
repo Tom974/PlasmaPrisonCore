@@ -1,6 +1,0 @@
-auto-pickup:
-  enabled: true
-  blacklist:
-    - '*ore'
-  replace:
-    - 'STONE:COBBLESTONE'

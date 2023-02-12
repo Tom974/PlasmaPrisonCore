@@ -79,7 +79,7 @@ public abstract class Addon {
             enchant.loreColor = yaml.getOrSetDefault(path+"lore-color", enchant.loreColor);
             enchant.max = yaml.getOrSetDefault(path+"max", enchant.max);
             enchant.cost = yaml.getOrSetDefault(path+"cost", enchant.cost);
-            enchant.jsScript = yaml.getOrSetDefault(path+"script", "{current_cost} * 2 // placeholders: {current_level} {current_cost} ");
+            enchant.jsScript = yaml.getOrSetDefault(path+"cost-script", "{current_cost} * 2"); // current_cost and current_level placeholders
             enchant.maxChance = yaml.getOrSetDefault(path+"max-chance", enchant.maxChance);
             enchant.refundPercent = yaml.getOrSetDefault(path+"refund-percent", enchant.refundPercent);
             if (enchant.options!=null) for (int j=0;j<enchant.options.length;j++) {

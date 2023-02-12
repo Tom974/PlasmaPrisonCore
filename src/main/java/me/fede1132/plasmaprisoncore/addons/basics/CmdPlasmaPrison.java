@@ -10,12 +10,13 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,7 +36,8 @@ public class CmdPlasmaPrison extends XCommand {
     private final List<String> adminHelp = Arrays.asList(
         "/plasmaprison addons",
         "/plasmaprison unload <addon>",
-        "/plasmaprison reload"
+        "/plasmaprison reload",
+        "/plasmaprison givepick <player>"
     );
 
     @Override
@@ -167,11 +169,11 @@ public class CmdPlasmaPrison extends XCommand {
             //         return;
             //     }
             //     playertoCheck.sendMessage("total cost: " + refundAmount + " tokens to enchant this item to level " + (i) + " max you can refund is " + maxUserCanRefund + " levels");
-            //     if (basics.getTokens(playertoCheck.getUniqueId()).longValue() < refundAmount) {
+            //     if (basics.getTokens(playertoCheck.getUniqueId()) < refundAmount) {
             //         playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.RED + "You don't have enough tokens to enchant this item!");
             //         return;
             //     }
-            //     basics.addTokensWithoutFiringEvent(playertoCheck.getUniqueId(), new BigDecimal(refundAmount));
+            //     basics.addTokensWithoutFiringEvent(playertoCheck.getUniqueId(), refundAmount);
             //     if (levelToGoTo == 0) {
             //         playertoCheck.getInventory().setItemInMainHand(instance.enchantManager.removeEnchant(hand, enchant));
             //     } else {
@@ -237,49 +239,58 @@ public class CmdPlasmaPrison extends XCommand {
                     return;
                 }
 
-                if (i > 0) {
-                    i = i + currentlevel;
-                }
+                if (i > 0) i = i + currentlevel;
+                if (i > enchant.max) i = enchant.max;
 
-                if (i > enchant.max) {
-                    i = enchant.max;
-                }
-                
-                int maxUserCanBuy = 0;
-                long cost = 0;
-                if (currentlevel == 0 && i == 1) {
-                    cost = enchant.cost;
-                    maxUserCanBuy = 1;
-                } else {
-                    for (int level = currentlevel; level <= i; level++) {
-                        if (level == currentlevel) level = level + 1;
-                        maxUserCanBuy++;
-                        long newCost = cost + (enchant.cost * level);
-                        if (basics.getTokens(playertoCheck.getUniqueId()).longValue() < newCost) {
-                            maxUserCanBuy = maxUserCanBuy - 1;
-                            break;
-                        } else {
-                            cost = newCost;
-                        }
-                    }
-                }
-
+                long cost = enchant.calcCost(currentlevel, i);
                 if (cost == 0) {
+                    playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.RED + "Uhm, Please report this to MyNqme: (Cost was 0?)");
+                    return;
+                }
+
+                if (basics.getTokens(playertoCheck.getUniqueId()) < cost) {
                     playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.RED + "You don't have enough tokens to enchant this item!");
                     return;
                 }
-                if (basics.getTokens(playertoCheck.getUniqueId()).longValue() < cost) {
-                    playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.RED + "You don't have enough tokens to enchant this item!");
-                    return;
-                }
-                basics.removeTokensWithoutFiringEvent(playertoCheck.getUniqueId(), new BigDecimal(cost));
-                
-                
+
+                playertoCheck.sendMessage("You paid: " + cost + " tokens to enchant this item to level " + (i) + " max you can enchant is " + enchant.max + " levels");
+                basics.removeTokensWithoutFiringEvent(playertoCheck.getUniqueId(), cost);
                 playertoCheck.getInventory().setItemInMainHand(instance.enchantManager.enchant(hand,enchant,i,playertoCheck));
                 playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.GREEN + "Successfully enchant the held item with " + ChatColor.WHITE + args[1]);
                 return;
             }
-            case "enchants":
+            case "givepick": {
+                if (!player.hasPermission("plasmaprison.admin")) return;
+                Player target;
+                if (args.length < 2) {
+                    target = player;
+                } else {
+                    target = Bukkit.getPlayer(args[1]);
+                }
+
+                // get item in slot 0
+                ItemStack slot0 = target.getInventory().getItem(0);
+                ItemStack pick = new ItemStack(Material.DIAMOND_PICKAXE);
+                ItemMeta meta = pick.getItemMeta();
+                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&d" + target.getName() + "'s Pickaxe"));
+                pick.setItemMeta(meta);
+                target.getInventory().setItem(0, instance.enchantManager.enchant(pick, instance.enchantManager.registeredEnchants.get("fortune"), 5, target));
+                pick = target.getInventory().getItem(0);
+                target.getInventory().setItem(0, instance.enchantManager.enchant(pick, instance.enchantManager.registeredEnchants.get("efficiency"), 1000, target));
+                pick = target.getInventory().getItem(0);
+                target.getInventory().setItem(0, instance.enchantManager.enchant(pick, instance.enchantManager.registeredEnchants.get("tokenator"), 5, target));
+                pick = target.getInventory().getItem(0);
+                target.getInventory().setItem(0, instance.enchantManager.enchant(pick, instance.enchantManager.registeredEnchants.get("haste"), 5, target));
+                // check if slot 0 had an item in it
+
+                if (slot0 == null) return;
+                if (!slot0.getType().equals(Material.AIR)) {
+                    target.getInventory().addItem(slot0);
+                }
+                
+                return;
+            }
+            case "enchants": {
                 player.sendMessage("Registered enchants:");
                 EnchantManager.getInst().registeredEnchants.values().stream().sorted(Comparator.comparing(Enchant::getId)).forEach(enchant->{
                     TextComponent text = new TextComponent();
@@ -301,6 +312,7 @@ public class CmdPlasmaPrison extends XCommand {
                     player.spigot().sendMessage(text);
                 });
                 return;
+            }
             case "reload": {
                 if (!player.hasPermission("plasmaprison.admin")) {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.RED + "You don't have permission to do that!");
@@ -328,7 +340,7 @@ public class CmdPlasmaPrison extends XCommand {
     @Override
     public List<String> onTabComplete(Player p, String[] args) {
         if (args.length==1) {
-            return Arrays.asList("addons", "enchant", "disenchant", "unload", "reload", "enchants");
+            return Arrays.asList("addons", "enchant", "disenchant", "unload", "reload", "givepick", "enchants");
         } else if (args[0].equalsIgnoreCase("enchant") || args[0].equalsIgnoreCase("disenchant")) {
             if (args.length==2) {
                 return instance.enchantManager.registeredEnchants.values().stream().map(Enchant::getId).collect(Collectors.toList());
@@ -336,6 +348,8 @@ public class CmdPlasmaPrison extends XCommand {
                 return Arrays.asList("1", "10", "100", "1000");
             }
             return Collections.EMPTY_LIST;
+        } else if (args[0].equalsIgnoreCase("givepick")) {
+            return Arrays.asList("Player");
         } else if (args[0].equalsIgnoreCase("unload")) {
             return new ArrayList<>(instance.addonManager.addons.keySet());
         }

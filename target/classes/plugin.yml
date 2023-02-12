@@ -1,9 +1,0 @@
-name: PlasmaPrisonCore
-version: 1.0
-main: me.fede1132.plasmaprisoncore.PlasmaPrisonCore
-prefix: PlasmaPrison
-load: POSTWORLD
-authors: [PlasmaDevTeam]
-description: Plasma custom prison core
-softdepend: [Essentials, XConomy, WorldEdit, WorldGuard, FastAsyncWorldEdit, CrazyCrates]
-depend: [Vault, PlaceholderAPI, AutoSell, Essentials]

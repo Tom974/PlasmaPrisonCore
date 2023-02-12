@@ -70,50 +70,31 @@ public class EnchantManager {
         return enchants.hasTag(id)?enchants.getInteger(id):0;
     }
 
-    // TODO: Fix disenchanter
-    // public ItemStack removeEnchant(ItemStack item, Enchant enchant) {
-    //     NBTItem nbti = new NBTItem(item);
-    //     if (!nbti.hasTag("PlasmaPrison")) nbti.addCompound("PlasmaPrison");
-    //     NBTCompound plasmaPrison = nbti.getCompound("PlasmaPrison");
-    //     if (!plasmaPrison.hasTag("enchants")) plasmaPrison.addCompound("enchants");
-    //     NBTCompound enchants = plasmaPrison.getCompound("enchants");
-    //     enchants.setInteger(enchant.getId(), 0);
-    //     if (enchants.hasTag(enchant.getId())) enchants.removeKey(enchant.getId());
-    //     item = nbti.getItem();
-    //     ItemMeta meta = item.getItemMeta();
-    //     List<String> lore = meta.getLore()==null?new ArrayList<>():meta.getLore();
-    //     List<String> list = new ArrayList<>(enchants.getKeys());
-    //     Collections.sort(list);
-    //     if (enchants.hasTag(enchant.getId())) {
-    //         enchants.removeKey(enchant.getId());
-    //         list=new ArrayList<>(enchants.getKeys());
-    //     }
-    //     meta.setLore(lore);
-    //     meta.setUnbreakable(true);
-    //     meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE);
-    //     item.setItemMeta(meta);
-    //     if (item.getEnchantments().size()==0) {
-    //         item.addEnchantment(Enchantment.DURABILITY, 1);
-    //     }
-
-    //     return item;
-    // }
-
-    public ItemStack updatePickaxeLore(ItemStack item, Player player) {
-        player.sendMessage("A be see");
-        // update the lore
+    public ItemStack removeEnchant(ItemStack item, Enchant enchant) {
+        NBTItem nbti = new NBTItem(item);
+        if (!nbti.hasTag("PlasmaPrison")) nbti.addCompound("PlasmaPrison");
+        NBTCompound plasmaPrison = nbti.getCompound("PlasmaPrison");
+        if (!plasmaPrison.hasTag("enchants")) plasmaPrison.addCompound("enchants");
+        NBTCompound enchants = plasmaPrison.getCompound("enchants");
+        enchants.setInteger(enchant.getId(), 0);
+        if (enchants.hasTag(enchant.getId())) enchants.removeKey(enchant.getId());
+        item = nbti.getItem();
         ItemMeta meta = item.getItemMeta();
         List<String> lore = meta.getLore()==null?new ArrayList<>():meta.getLore();
-        List<String> list = new ArrayList<>(getEnchantCompound(item).getKeys());
+        List<String> list = new ArrayList<>(enchants.getKeys());
         Collections.sort(list);
-        player.sendMessage("A be see 2");
-        String parsedString = PlaceholderAPI.setPlaceholders(player, "%leveltools_progress_bar%");
-        lore.add(parsedString);
+        if (enchants.hasTag(enchant.getId())) {
+            enchants.removeKey(enchant.getId());
+            list=new ArrayList<>(enchants.getKeys());
+        }
         meta.setLore(lore);
         meta.setUnbreakable(true);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE);
         item.setItemMeta(meta);
-        player.sendMessage("A be see 3");
+        if (item.getEnchantments().size()==0) {
+            item.addEnchantment(Enchantment.DURABILITY, 1);
+        }
+
         return item;
     }
 
@@ -123,13 +104,16 @@ public class EnchantManager {
         NBTCompound plasmaPrison = nbti.getCompound("PlasmaPrison");
         if (!plasmaPrison.hasTag("enchants")) plasmaPrison.addCompound("enchants");
         NBTCompound enchants = plasmaPrison.getCompound("enchants");
-        if (level>0) enchants.setInteger(enchant.getId(), level);
+        if (level > 0) enchants.setInteger(enchant.getId(), Integer.valueOf(level));
         else if (enchants.hasTag(enchant.getId())) enchants.removeKey(enchant.getId());
         item = nbti.getItem();
         ItemMeta meta = item.getItemMeta();
-        List<String> lore = meta.getLore()==null?new ArrayList<>():meta.getLore();
+        List<String> lore = meta.getLore() == null ? new ArrayList<>() : meta.getLore();
+        
         List<String> list = new ArrayList<>(enchants.getKeys());
         Collections.sort(list);
+        // list.add(0, "");
+        // list.add(1, ChatColor.translateAlternateColorCodes('&', "&5&lPlasmaPrison Enchantments"));
         List<String> sublist = lore.subList(0, Math.min(list.size(), lore.size()));
         if (level<=0&&enchants.hasTag(enchant.getId())) {
             enchants.removeKey(enchant.getId());
@@ -140,10 +124,12 @@ public class EnchantManager {
             Enchant e1 = registeredEnchants.get(s);
             sublist.add(getText(e1.loreColor, e1.displayName, enchants.getInteger(s)));
         }
-        
+
+        sublist.add(0, ChatColor.translateAlternateColorCodes('&', "&5&lEnchantments"));
+        sublist.add(0, ChatColor.translateAlternateColorCodes('&', "&m"));
         // String parsedString = PlaceholderAPI.setPlaceholders(player, "%leveltools_progress_bar%");
         // sublist.add(parsedString);
-        meta.setLore(lore);
+        meta.setLore(sublist);
         meta.setUnbreakable(true);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE);
         item.setItemMeta(meta);

@@ -91,6 +91,7 @@ public class AddonManager {
                     e.printStackTrace();
                 }
             });
+            this.instance.getLogger().info("(!) Done reloading addons! (!)");
         } catch (Exception e) {
             e.printStackTrace();
         }

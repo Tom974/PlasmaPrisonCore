@@ -1,6 +1,0 @@
-# action bar
-action-bar:
-  spacer: " &7&l|&r "
-  economy:
-    enabled: true
-    text: "&a&l+ {money}$"

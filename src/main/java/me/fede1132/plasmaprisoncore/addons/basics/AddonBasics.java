@@ -10,7 +10,6 @@ import me.fede1132.plasmaprisoncore.addons.basics.listeners.ItemHeld;
 import me.fede1132.plasmaprisoncore.internal.util.SimpleEntry;
 import org.bukkit.Bukkit;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,7 +19,7 @@ import java.util.UUID;
 public class AddonBasics extends Addon {
     private static AddonBasics instance;
     public Yaml config;
-    public BigDecimal MAX_TOKENS;
+    public long MAX_TOKENS;
     @Override
     public void load() {
         instance = this;
@@ -28,11 +27,11 @@ public class AddonBasics extends Addon {
         registerListeners(new AutoSeller(), new ItemHeld());
         registerCommands(new CmdPlasmaPrison());
         config = setupPersonalConfig("config",
-                new SimpleEntry<>("max-tokens", "10000000000000000000000000"));
+                new SimpleEntry<>("max-tokens", "9223372036854775807"));
         try {
-            MAX_TOKENS = new BigDecimal(config.getString("max-tokens"));
+            MAX_TOKENS = Long.valueOf(config.getString("max-tokens"));
         } catch (NumberFormatException e) {
-            MAX_TOKENS = new BigDecimal("10000000000000000000000000");
+            MAX_TOKENS = Long.valueOf("9223372036854775807");
             PlasmaPrisonCore.getInstance().getLogger().warning("[PlasmaPrison - AddonBaiscs] There was an error trying to laod max-tokens value.. Using default max-tokens value.");
         }
         try (Connection connection = plugin.database.getConnection()) {
@@ -52,17 +51,17 @@ public class AddonBasics extends Addon {
      * @param uuid Player's UUID
      * @return Player's tokens
      */
-    public BigDecimal getTokens(UUID uuid) {
+    public long getTokens(UUID uuid) {
         try (Connection connection = plugin.database.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM tokens WHERE uuid = ?");
             ps.setString(1,uuid.toString());
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getBigDecimal("tokens");
-            return BigDecimal.ZERO;
+            if (rs.next()) return rs.getLong("tokens");
+            return 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return BigDecimal.ZERO;
+        return 0;
     }
 
     /** Set player's tokens
@@ -70,7 +69,7 @@ public class AddonBasics extends Addon {
      * @param uuid Player UUID
      * @param i Tokens to set
      */
-    public void setTokensWithoutFiringEvent(UUID uuid, BigDecimal i) {
+    public void setTokensWithoutFiringEvent(UUID uuid, long i) {
         try (Connection connection = plugin.database.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM tokens WHERE uuid = ?");
             ps.setString(1,uuid.toString());
@@ -78,10 +77,10 @@ public class AddonBasics extends Addon {
             PreparedStatement query = connection.prepareStatement(rs.next()?
                     "UPDATE tokens SET tokens = ? WHERE uuid = ?":
                     "INSERT INTO tokens (tokens,uuid) VALUES (?, ?)");
-            if (i.compareTo(MAX_TOKENS)>0) {
+            if (i > MAX_TOKENS) {
                 i = MAX_TOKENS;
-            } else if (i.compareTo(BigDecimal.ZERO)<0) {
-                i = BigDecimal.ZERO;
+            } else if (i < 0) {
+                i = 0;
             }
             query.setString(1,String.valueOf(i));
             query.setString(2,uuid.toString());
@@ -92,7 +91,7 @@ public class AddonBasics extends Addon {
     }
 
 
-    public void setTokens(UUID uuid, BigDecimal i) {
+    public void setTokens(UUID uuid, long i) {
         TokenChangeEvent event = new TokenChangeEvent(Bukkit.getPlayer(uuid), TokenChangeEvent.ChangeAction.SET, i);
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return;
@@ -104,7 +103,7 @@ public class AddonBasics extends Addon {
      * @param uuid Player's UUID
      * @param i Token to add
      */
-    public void addTokensWithoutFiringEvent(UUID uuid, BigDecimal i) {
+    public void addTokensWithoutFiringEvent(UUID uuid, long i) {
         try (Connection connection = plugin.database.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM tokens WHERE uuid = ?");
             ps.setString(1,uuid.toString());
@@ -112,11 +111,13 @@ public class AddonBasics extends Addon {
             PreparedStatement query = connection.prepareStatement(rs.next()?
                     "UPDATE tokens SET tokens = ? WHERE uuid = ?":
                     "INSERT INTO tokens (tokens,uuid) VALUES (?, ?)");
-            i = i.add(rs.getBigDecimal("tokens"));
-            if (i.compareTo(MAX_TOKENS)>0) {
+            i = i + rs.getLong("tokens");
+            if (i > MAX_TOKENS) {
                 i = MAX_TOKENS;
+            } else if (i < 0) {
+                i = 0;
             }
-            query.setString(1,i.toString());
+            query.setString(1,String.valueOf(i));
             query.setString(2,uuid.toString());
             query.executeUpdate();
         } catch (SQLException e) {
@@ -124,7 +125,7 @@ public class AddonBasics extends Addon {
         }
     }
 
-    public void addTokens(UUID uuid, BigDecimal i) {
+    public void addTokens(UUID uuid, long i) {
         TokenChangeEvent event = new TokenChangeEvent(Bukkit.getPlayer(uuid), TokenChangeEvent.ChangeAction.ADD, i);
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return;
@@ -139,20 +140,16 @@ public class AddonBasics extends Addon {
      * @param uuid Player's UUID
      * @param i Tokens to remove
      */
-    public void removeTokensWithoutFiringEvent(UUID uuid, BigDecimal i) {
+    public void removeTokensWithoutFiringEvent(UUID uuid, long i) {
         try (Connection connection = plugin.database.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM tokens WHERE uuid = ?");
             ps.setString(1,uuid.toString());
             ResultSet rs = ps.executeQuery();
             boolean b = rs.next();
-            PreparedStatement query = connection.prepareStatement(b?
-                    "UPDATE tokens SET tokens = ? WHERE uuid = ?":
-                    "INSERT INTO tokens (tokens,uuid) VALUES (?, ?)");
-            i = rs.getBigDecimal("tokens").subtract(i);
-            if (i.compareTo(BigDecimal.ZERO)<0) {
-                i = BigDecimal.ZERO;
-            }
-            query.setString(1,b?i.toString():"0");
+            PreparedStatement query = connection.prepareStatement(b ? "UPDATE tokens SET tokens = ? WHERE uuid = ?" : "INSERT INTO tokens (tokens,uuid) VALUES (?, ?)");
+            i = i - rs.getLong("tokens");
+            if (i < 0) i = 0;
+            query.setString(1,b ? String.valueOf(i) : "0");
             query.setString(2,uuid.toString());
             query.executeUpdate();
         } catch (SQLException e) {
@@ -160,7 +157,7 @@ public class AddonBasics extends Addon {
         }
     }
 
-    public void removeTokens(UUID uuid, BigDecimal i) {
+    public void removeTokens(UUID uuid, long i) {
         TokenChangeEvent event = new TokenChangeEvent(Bukkit.getPlayer(uuid), TokenChangeEvent.ChangeAction.REMOVE, i);
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return;
@@ -168,6 +165,10 @@ public class AddonBasics extends Addon {
     }
 
     public static AddonBasics getInstance() {
+        return instance;
+    }
+    
+    public static AddonBasics getInst() {
         return instance;
     }
 }

@@ -5,7 +5,6 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import java.math.BigDecimal;
 
 public class TokenChangeEvent extends Event implements Cancellable {
     public enum ChangeAction {
@@ -18,9 +17,9 @@ public class TokenChangeEvent extends Event implements Cancellable {
     // vars
     private final Player player;
     private final ChangeAction action;
-    private BigDecimal difference;
+    private long difference;
 
-    public TokenChangeEvent(Player player, ChangeAction action, BigDecimal difference) {
+    public TokenChangeEvent(Player player, ChangeAction action, long difference) {
         this.player = player;
         this.action = action;
         this.difference = difference;
@@ -34,11 +33,11 @@ public class TokenChangeEvent extends Event implements Cancellable {
         return action;
     }
 
-    public BigDecimal getDifference() {
+    public long getDifference() {
         return difference;
     }
 
-    public void setDifference(BigDecimal newAmount) {
+    public void setDifference(long newAmount) {
         this.difference = newAmount;
     }
 
