@@ -33,17 +33,9 @@ public class AddonBasics extends Addon {
             MAX_TOKENS = Long.valueOf("9223372036854775807");
             PlasmaPrisonCore.getInstance().getLogger().warning("[PlasmaPrison - AddonBaiscs] There was an error trying to laod max-tokens value.. Using default max-tokens value.");
         }
-        try (Connection connection = plugin.database.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement(
-                    "CREATE TABLE IF NOT EXISTS tokens (\n" +
-                            "  `uuid` VARCHAR(36) NOT NULL,\n" +
-                            "  `tokens` TEXT NOT NULL,\n" +
-                            "  PRIMARY KEY (`uuid`));\n");
-            ps.executeUpdate();
-            connection.close();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+
+        plugin.database.createTokensTable();
+        plugin.database.createUsersTable();
     }
 
     /** Get player's tokens
@@ -52,22 +44,7 @@ public class AddonBasics extends Addon {
      * @return Player's tokens
      */
     public long getTokens(UUID uuid) {
-        try (Connection connection = plugin.database.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM tokens WHERE uuid = ?");
-            ps.setString(1, uuid.toString());
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                long tokens = rs.getLong("tokens");
-                connection.close();
-                return tokens;
-            } else {
-                connection.close();
-                return 0;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0;
+        return plugin.database.getTokens(uuid);
     }
 
     /** Set player's tokens
@@ -76,25 +53,13 @@ public class AddonBasics extends Addon {
      * @param i Tokens to set
      */
     public void setTokensWithoutFiringEvent(UUID uuid, long i) {
-        try (Connection connection = plugin.database.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM tokens WHERE uuid = ?");
-            ps.setString(1,uuid.toString());
-            ResultSet rs = ps.executeQuery();
-            PreparedStatement query = connection.prepareStatement(rs.next()?
-                    "UPDATE tokens SET tokens = ? WHERE uuid = ?":
-                    "INSERT INTO tokens (tokens,uuid) VALUES (?, ?)");
-            if (i > MAX_TOKENS) {
-                i = MAX_TOKENS;
-            } else if (i < 0) {
-                i = 0;
-            }
-            query.setString(1,String.valueOf(i));
-            query.setString(2,uuid.toString());
-            query.executeUpdate();
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (i > MAX_TOKENS) {
+            i = MAX_TOKENS;
+        } else if (i < 0) {
+            i = 0;
         }
+
+        plugin.database.setTokens(uuid, i);
     }
 
 
@@ -111,26 +76,7 @@ public class AddonBasics extends Addon {
      * @param i Token to add
      */
     public void addTokensWithoutFiringEvent(UUID uuid, long i) {
-        try (Connection connection = plugin.database.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM tokens WHERE uuid = ?");
-            ps.setString(1,uuid.toString());
-            ResultSet rs = ps.executeQuery();
-            PreparedStatement query = connection.prepareStatement(rs.next()?
-                    "UPDATE tokens SET tokens = ? WHERE uuid = ?":
-                    "INSERT INTO tokens (tokens,uuid) VALUES (?, ?)");
-            i = rs.getLong("tokens") + i;
-            if (i > MAX_TOKENS) {
-                i = MAX_TOKENS;
-            } else if (i < 0) {
-                i = 0;
-            }
-            query.setString(1,String.valueOf(i));
-            query.setString(2,uuid.toString());
-            query.executeUpdate();
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        plugin.database.addTokens(uuid, i, this.MAX_TOKENS);
     }
 
     public void addTokens(UUID uuid, long i) {
@@ -149,22 +95,7 @@ public class AddonBasics extends Addon {
      * @param i Tokens to remove
      */
     public void removeTokensWithoutFiringEvent(UUID uuid, long i) {
-        try (Connection connection = plugin.database.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM tokens WHERE uuid = ?");
-            ps.setString(1,uuid.toString());
-            ResultSet rs = ps.executeQuery();
-            boolean b = rs.next();
-            PreparedStatement query = connection.prepareStatement(b ? "UPDATE tokens SET tokens = ? WHERE uuid = ?" : "INSERT INTO tokens (tokens,uuid) VALUES (?, ?)");
-
-            i = rs.getLong("tokens") - i;
-            if (i < 0) i = 0;
-            query.setString(1, b ? String.valueOf(i) : "0");
-            query.setString(2,uuid.toString());
-            query.executeUpdate();
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        plugin.database.removeTokens(uuid, i);
     }
 
     public void removeTokens(UUID uuid, long i) {

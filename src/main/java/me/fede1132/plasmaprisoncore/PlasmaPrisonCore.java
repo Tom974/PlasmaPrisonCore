@@ -8,7 +8,7 @@ import me.fede1132.plasmaprisoncore.addons.basics.AddonBasics;
 import me.fede1132.plasmaprisoncore.enchant.EnchantManager;
 import me.fede1132.plasmaprisoncore.events.*;
 import me.fede1132.plasmaprisoncore.internal.hooks.HookPapi;
-import me.fede1132.plasmaprisoncore.internal.util.Database;
+import me.fede1132.plasmaprisoncore.internal.util.sql.Database;
 import me.fede1132.plasmaprisoncore.util.Tasks;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -68,6 +68,7 @@ public final class PlasmaPrisonCore extends JavaPlugin {
     @Override
     public void onDisable() {
         log("Disabling plugin..");
+        database.closeConnections();
     }
 
     public void setupVault() {

@@ -21,9 +21,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @CommandInfo(
-        name="plasmaprison",
-        desc = "Plasmaprison",
-        perm = "plasmaprison.commands"
+    name = "plasmaprison",
+    desc = "Plasmaprison",
+    perm = "plasmaprison.commands"
 )
 public class CmdPlasmaPrison extends XCommand {
     private final PlasmaPrisonCore instance = PlasmaPrisonCore.getInstance();
