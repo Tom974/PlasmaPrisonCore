@@ -354,7 +354,7 @@ public class CmdPlasmaPrison extends XCommand {
             }
             return Collections.EMPTY_LIST;
         } else if (args[0].equalsIgnoreCase("givepick")) {
-            return Arrays.asList("Player");
+            return Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
         } else if (args[0].equalsIgnoreCase("unload")) {
             return new ArrayList<>(instance.addonManager.addons.keySet());
         }

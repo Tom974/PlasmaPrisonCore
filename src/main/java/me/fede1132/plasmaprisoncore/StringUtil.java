@@ -11,6 +11,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import de.leonhard.storage.Yaml;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 
 public class StringUtil {
@@ -27,8 +28,7 @@ public class StringUtil {
             .getName()), new Placeholder("displayname", player
             .getDisplayName()), new Placeholder("health", 
             Double.valueOf(player.getHealth())), new Placeholder("health_max", 
-            Double.valueOf(player.getMaxHealth())), new Placeholder("world", player
-            .getWorld().getName()) });
+            Double.valueOf(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue())), new Placeholder("world", player.getWorld().getName()) });
     if (placeholders != null && placeholders.length > 0)
       for (Placeholder placeholder : placeholders)
         s = placeholder.replace(s);  

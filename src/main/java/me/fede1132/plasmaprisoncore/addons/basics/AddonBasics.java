@@ -23,7 +23,7 @@ public class AddonBasics extends Addon {
     @Override
     public void load() {
         instance = this;
-        registerEnchants(new EnchantEfficiency(), new EnchantFortune(), new EnchantHaste(), new EnchantJump(), new EnchantSpeed());
+        registerEnchants(new EnchantEfficiency(), new EnchantFortune(), new EnchantHaste(), new EnchantJump(), new EnchantSpeed(), new EnchantMerchant());
         registerListeners(new AutoSeller(), new ItemHeld());
         registerCommands(new CmdPlasmaPrison());
         config = setupPersonalConfig("config", new SimpleEntry<>("max-tokens", "9223372036854775807"));
