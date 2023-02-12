@@ -268,6 +268,11 @@ public class CmdPlasmaPrison extends XCommand {
                     target = Bukkit.getPlayer(args[1]);
                 }
 
+                if (target == null) {
+                    player.sendMessage("Please specify an online player!");
+                    return;
+                }
+
                 // get item in slot 0
                 ItemStack slot0 = target.getInventory().getItem(0);
                 ItemStack pick = new ItemStack(Material.DIAMOND_PICKAXE);
