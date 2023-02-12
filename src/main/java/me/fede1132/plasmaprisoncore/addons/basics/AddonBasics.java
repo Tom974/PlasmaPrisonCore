@@ -57,8 +57,9 @@ public class AddonBasics extends Addon {
             ps.setString(1,uuid.toString());
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
+                long tokens = rs.getLong("tokens");
                 connection.close();
-                return rs.getLong("tokens");
+                return tokens;
             } else {
                 connection.close();
                 return 0;
