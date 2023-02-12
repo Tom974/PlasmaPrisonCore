@@ -30,6 +30,7 @@ public class Database {
                     "  `uuid` CHAR(36) NOT NULL,\n" +
                     "  `name` VARCHAR(16) NOT NULL,\n" +
                     "  PRIMARY KEY (`uuid`));\n").executeUpdate();
+            connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -28,6 +28,7 @@ public class PlayerJoin implements Listener {
                 insert.setString(2, event.getPlayer().getUniqueId().toString());
                 insert.executeUpdate();
             }
+            connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -40,6 +40,7 @@ public class AddonBasics extends Addon {
                             "  `tokens` TEXT NOT NULL,\n" +
                             "  PRIMARY KEY (`uuid`));\n");
             ps.executeUpdate();
+            connection.close();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -55,8 +56,13 @@ public class AddonBasics extends Addon {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM tokens WHERE uuid = ?");
             ps.setString(1,uuid.toString());
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getLong("tokens");
-            return 0;
+            if (rs.next()) {
+                connection.close();
+                return rs.getLong("tokens");
+            } else {
+                connection.close();
+                return 0;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -84,6 +90,7 @@ public class AddonBasics extends Addon {
             query.setString(1,String.valueOf(i));
             query.setString(2,uuid.toString());
             query.executeUpdate();
+            connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -119,6 +126,7 @@ public class AddonBasics extends Addon {
             query.setString(1,String.valueOf(i));
             query.setString(2,uuid.toString());
             query.executeUpdate();
+            connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -152,6 +160,7 @@ public class AddonBasics extends Addon {
             query.setString(1, b ? String.valueOf(i) : "0");
             query.setString(2,uuid.toString());
             query.executeUpdate();
+            connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }

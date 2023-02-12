@@ -8,6 +8,7 @@ import me.fede1132.plasmaprisoncore.addons.basics.enchant.EnchantEfficiency;
 import me.fede1132.plasmaprisoncore.addons.basics.enchant.EnchantFortune;
 // import me.fede1132.plasmaprisoncore.internal.hooks.PapiPlaceholder;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -30,6 +31,7 @@ public class EnchantManager {
     }
 
     public void register(Enchant enchant) {
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN+"(!) Registering enchant "+enchant.getId()+"...");
         long curr=enchant.cost;
         long base=enchant.cost;
         for (int i=0;i<=enchant.max;i++) {
@@ -42,7 +44,9 @@ public class EnchantManager {
                 e.printStackTrace();
             }
         }
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN+"(!) Adding enchant "+enchant.getId()+"...");
         this.registeredEnchants.put(enchant.getId(), enchant);
+        Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_GREEN+"(!) Done Registering enchant "+enchant.getId()+"...");
     }
 
     public boolean hasEnchant(ItemStack item, String id) {
