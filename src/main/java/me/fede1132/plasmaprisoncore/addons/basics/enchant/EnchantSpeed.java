@@ -6,10 +6,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 
 public class EnchantSpeed extends Enchant {
     public EnchantSpeed() {
-        super("speed",
-                "Speed",
-                3, 1,
-                "b", 100);
+        super("speed","Speed",3, 1,"&d▎ &c%name% &e%level%", 100);
     }
 
     @Override

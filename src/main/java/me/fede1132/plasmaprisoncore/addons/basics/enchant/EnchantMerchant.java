@@ -8,7 +8,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 
 public class EnchantMerchant extends Enchant {
     public EnchantMerchant() {
-        super("merchant", "Merchant", 1, 1, "9", 100);
+        super("merchant", "Merchant", 1, 1, "&d▎ &c%name% &e%level%", 100);
     }
 
     @Override

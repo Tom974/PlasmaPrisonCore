@@ -7,8 +7,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 public class EnchantEfficiency extends Enchant {
 
     public EnchantEfficiency() {
-        super("efficiency",
-                "Efficiency", 100, 1, "3", 100);
+        super("efficiency","Efficiency", 100, 1, "&d▎ &c%name% &e%level%", 100);
     }
 
     @Override

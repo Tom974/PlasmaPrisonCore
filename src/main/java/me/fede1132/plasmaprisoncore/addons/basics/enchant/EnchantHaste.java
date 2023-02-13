@@ -6,11 +6,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 
 public class EnchantHaste extends Enchant {
     public EnchantHaste() {
-        super(
-                "haste",
-                "Haste",
-                1,1,"9",100
-        );
+        super("haste","Haste",1,1,"&d▎ &c%name% &e%level%",100);
     }
 
     @Override

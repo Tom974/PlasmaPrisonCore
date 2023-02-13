@@ -6,8 +6,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 
 public class EnchantFortune extends Enchant {
     public EnchantFortune() {
-        super("fortune",
-                "Fortune", 100, 1, "c", 100);
+        super("fortune","Fortune", 100, 1, "&d▎ &c%name% &e%level%", 100);
     }
 
     @Override
