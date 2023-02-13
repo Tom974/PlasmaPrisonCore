@@ -12,6 +12,7 @@ import me.fede1132.plasmaprisoncore.internal.util.sql.Database;
 import me.fede1132.plasmaprisoncore.util.Tasks;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -21,6 +22,8 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.HashMap;
+import java.util.UUID;
 
 public final class PlasmaPrisonCore extends JavaPlugin {
     private static PlasmaPrisonCore instance;
@@ -31,6 +34,7 @@ public final class PlasmaPrisonCore extends JavaPlugin {
     public Yaml chat;
     public Yaml messages;
     public Economy econ;
+    public HashMap<UUID, Long> tokens = new HashMap<>();
 
     public static PlasmaPrisonCore getCore() {
         return instance;
@@ -42,13 +46,18 @@ public final class PlasmaPrisonCore extends JavaPlugin {
         log("Loading files..");
         database = new Database(this);
         config = SimplixBuilder.fromFile(new File(getDataFolder(),"config")).addInputStream(getResource("config.yml")).setConfigSettings(ConfigSettings.PRESERVE_COMMENTS).createYaml();
-        chat = SimplixBuilder.fromFile(new File(getDataFolder(),"chat")).addInputStream(getResource("chat.yml")).setConfigSettings(ConfigSettings.PRESERVE_COMMENTS).createYaml();;
+        chat = SimplixBuilder.fromFile(new File(getDataFolder(),"chat")).addInputStream(getResource("chat.yml")).setConfigSettings(ConfigSettings.PRESERVE_COMMENTS).createYaml();
         messages = SimplixBuilder.fromFile(new File(getDataFolder(), "messages")).addInputStream(getResource("messages.yml")).setConfigSettings(ConfigSettings.PRESERVE_COMMENTS).createYaml();
         log("Loading command and hooks..");
         instance = this;
+        log("Loading tokens from players..");
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            this.tokens.put(p.getUniqueId(), this.database.getTokens(p.getUniqueId(), true));
+        }
         log("Loading events..");
         PluginManager pm = Bukkit.getPluginManager();
         pm.registerEvents(new PlayerJoin(), this);
+        pm.registerEvents(new PlayerLeave(), this);
         pm.registerEvents(new BlockBreak(), this);
         log("Loading vault lib");
         setupVault();
@@ -68,6 +77,10 @@ public final class PlasmaPrisonCore extends JavaPlugin {
     @Override
     public void onDisable() {
         log("Disabling plugin..");
+        log("Saving tokens to database..");
+        for (UUID uuid : this.tokens.keySet()) {
+            this.database.saveTokens(uuid, this.tokens.get(uuid));
+        }
         database.closeConnections();
     }
 
@@ -91,8 +104,7 @@ public final class PlasmaPrisonCore extends JavaPlugin {
     }
 
     public void addClassPath(final URL url) throws IOException {
-        final URLClassLoader sysloader = (URLClassLoader) ClassLoader
-                .getSystemClassLoader();
+        final URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
         final Class<URLClassLoader> sysclass = URLClassLoader.class;
         try {
             final Method method = sysclass.getDeclaredMethod("addURL", URL.class);

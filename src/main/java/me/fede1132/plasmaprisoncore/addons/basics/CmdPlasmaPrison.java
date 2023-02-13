@@ -169,7 +169,7 @@ public class CmdPlasmaPrison extends XCommand {
             //         return;
             //     }
             //     playertoCheck.sendMessage("total cost: " + refundAmount + " tokens to enchant this item to level " + (i) + " max you can refund is " + maxUserCanRefund + " levels");
-            //     if (basics.getTokens(playertoCheck.getUniqueId()) < refundAmount) {
+            //     if (basics.getTokens(playertoCheck.getUniqueId(), false) < refundAmount) {
             //         playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.RED + "You don't have enough tokens to enchant this item!");
             //         return;
             //     }
@@ -248,7 +248,7 @@ public class CmdPlasmaPrison extends XCommand {
                     return;
                 }
 
-                if (basics.getTokens(playertoCheck.getUniqueId()) < cost) {
+                if (basics.getTokens(playertoCheck.getUniqueId(), false) < cost) {
                     playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.RED + "You don't have enough tokens to enchant this item!");
                     return;
                 }

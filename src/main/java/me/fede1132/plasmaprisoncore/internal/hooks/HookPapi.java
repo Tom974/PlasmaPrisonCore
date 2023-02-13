@@ -47,9 +47,9 @@ public class HookPapi extends PlaceholderExpansion {
         // Bukkit.getConsoleSender().sendMessage("args: " + Arrays.stream(args).collect(Collectors.joining(",")));
         AddonBasics basics = this.basics == null ? AddonBasics.getInstance() : this.basics;
         if (params.equalsIgnoreCase("tokens") || params.equalsIgnoreCase("token")) {
-            return basics.getTokens(player.getUniqueId()) + "";
+            return basics.getTokens(player.getUniqueId(), false) + "";
         } else if (params.equalsIgnoreCase("tokens_formatted") || params.equalsIgnoreCase("formattedtokens")) {
-            return NumberFormat.format(basics.getTokens(player.getUniqueId()));
+            return NumberFormat.format(basics.getTokens(player.getUniqueId(), false));
         } else if (params.equalsIgnoreCase("tokenmultiplier")) {
             LuckPerms api = LuckPermsProvider.get();
             User user = api.getPlayerAdapter(Player.class).getUser(player);

@@ -43,8 +43,8 @@ public class AddonBasics extends Addon {
      * @param uuid Player's UUID
      * @return Player's tokens
      */
-    public long getTokens(UUID uuid) {
-        return plugin.database.getTokens(uuid);
+    public long getTokens(UUID uuid, boolean fromDatabase) {
+        return plugin.database.getTokens(uuid, fromDatabase);
     }
 
     /** Set player's tokens
