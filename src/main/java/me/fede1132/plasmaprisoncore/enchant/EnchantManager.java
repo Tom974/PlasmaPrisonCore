@@ -104,21 +104,19 @@ public class EnchantManager {
     }
 
     public ItemStack enchant(ItemStack item, Enchant enchant, int level, Player player) {
-        NBTItem nbti = new NBTItem(item);
-        if (!nbti.hasTag("PlasmaPrison")) nbti.addCompound("PlasmaPrison");
-        NBTCompound plasmaPrison = nbti.getCompound("PlasmaPrison");
+        NBTItem nbt = new NBTItem(item);
+        if (!nbt.hasTag("PlasmaPrison")) nbt.addCompound("PlasmaPrison");
+        NBTCompound plasmaPrison = nbt.getCompound("PlasmaPrison");
         if (!plasmaPrison.hasTag("enchants")) plasmaPrison.addCompound("enchants");
         NBTCompound enchants = plasmaPrison.getCompound("enchants");
         if (level > 0) enchants.setInteger(enchant.getId(), Integer.valueOf(level));
         else if (enchants.hasTag(enchant.getId())) enchants.removeKey(enchant.getId());
-        item = nbti.getItem();
+        item = nbt.getItem();
         ItemMeta meta = item.getItemMeta();
         List<String> lore = meta.getLore() == null ? new ArrayList<>() : meta.getLore();
         
         List<String> list = new ArrayList<>(enchants.getKeys());
         Collections.sort(list);
-        // list.add(0, "");
-        // list.add(1, ChatColor.translateAlternateColorCodes('&', "&5&lPlasmaPrison Enchantments"));
         List<String> sublist = lore.subList(0, Math.min(list.size(), lore.size()));
         if (level<=0&&enchants.hasTag(enchant.getId())) {
             enchants.removeKey(enchant.getId());
@@ -132,8 +130,6 @@ public class EnchantManager {
 
         sublist.add(0, ChatColor.translateAlternateColorCodes('&', "&5&lEnchantments"));
         sublist.add(0, ChatColor.translateAlternateColorCodes('&', "&m"));
-        // String parsedString = PlaceholderAPI.setPlaceholders(player, "%leveltools_progress_bar%");
-        // sublist.add(parsedString);
         meta.setLore(sublist);
         meta.setUnbreakable(true);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE);
