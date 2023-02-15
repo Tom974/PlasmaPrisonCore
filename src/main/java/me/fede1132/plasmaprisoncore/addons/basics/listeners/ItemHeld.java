@@ -19,7 +19,7 @@ public class ItemHeld implements Listener {
     public void onHeld(PlayerItemHeldEvent event) {
         Player player = event.getPlayer();
         ItemStack hand = event.getPlayer().getInventory().getItem(event.getNewSlot());
-        if (hand==null||hand.getType()!= Material.DIAMOND_PICKAXE) {
+        if (hand == null || hand.getType() != Material.DIAMOND_PICKAXE) {
             player.getActivePotionEffects().stream().map(PotionEffect::getType).filter(effects::contains).forEach(player::removePotionEffect);
             return;
         }

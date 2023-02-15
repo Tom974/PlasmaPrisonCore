@@ -14,6 +14,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.UUID;
 
 public class AddonBasics extends Addon {
@@ -47,6 +48,11 @@ public class AddonBasics extends Addon {
         return plugin.database.getTokens(uuid, fromDatabase);
     }
 
+    public HashMap<UUID, HashMap<String, Integer>> getCellValues() {
+        return plugin.database.getCellValues();
+    }
+    
+
     /** Set player's tokens
      *
      * @param uuid Player UUID
@@ -58,6 +64,8 @@ public class AddonBasics extends Addon {
         } else if (i < 0) {
             i = 0;
         }
+
+//        Bukkit.getLogger().info("Setting tokens to " + i + " for " + uuid.toString() + "...");
 
         plugin.database.setTokens(uuid, i);
     }
