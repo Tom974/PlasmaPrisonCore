@@ -218,10 +218,10 @@ public class Database {
             // get player by uuid
             // Bukkit.getPlayer(uuid).sendMessage("§a§lDEBUG: §f§lUsing cached tokens");
             if (this.plugin.tokens.containsKey(uuid)) {
-                Bukkit.getLogger().info("Loaded tokens for " + uuid.toString() + ": " + this.plugin.tokens.get(uuid));
+//                Bukkit.getLogger().info("Loaded tokens for " + uuid.toString() + ": " + this.plugin.tokens.get(uuid));
                 return this.plugin.tokens.get(uuid);
             } else {
-                Bukkit.getLogger().info("Fetching from db...");
+//                Bukkit.getLogger().info("Fetching from db...");
                 fromDatabase = true; // fetch from db again
             }
         }
@@ -250,7 +250,7 @@ public class Database {
                 e.printStackTrace();
             } finally {
                 pool.close(conn, ps, rs);
-                Bukkit.getLogger().info("Loaded tokens for " + uuid.toString() + ": " + tokens);
+//                Bukkit.getLogger().info("Loaded tokens for " + uuid.toString() + ": " + tokens);
                 return tokens;
             }
         }
