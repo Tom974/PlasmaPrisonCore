@@ -1,5 +1,7 @@
 package me.fede1132.plasmaprisoncore.addons.basics;
 
+import de.tr7zw.nbtapi.NBTCompound;
+import de.tr7zw.nbtapi.NBTItem;
 import me.fede1132.plasmaprisoncore.PlasmaPrisonCore;
 import me.fede1132.plasmaprisoncore.addons.cmds.CommandInfo;
 import me.fede1132.plasmaprisoncore.addons.cmds.XCommand;
@@ -10,9 +12,11 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -55,6 +59,10 @@ public class CmdPlasmaPrison extends XCommand {
         }
         switch (args[0].toLowerCase()) {
             case "addons": {
+                if (!player.hasPermission("plasmaprison.admin")) {
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.RED + "You don't have permission to do this!");
+                    return;
+                }
                 if (instance.addonManager.addons.size()>0) {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + "Loaded addons:");
                     instance.addonManager.addons.forEach((k,v)->{
@@ -77,125 +85,22 @@ public class CmdPlasmaPrison extends XCommand {
                 return;
             }
             case "unload": {
+                if (!player.hasPermission("plasmaprison.admin")) {
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.RED + "You don't have permission to do this!");
+                    return;
+                }
                 if (args.length<2) {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.RED + "You must need to specify at least one addon to unload!");
                     return;
                 }
                 if (instance.addonManager.addons.keySet().stream().anyMatch(addon->args[1].equals(addon))) {
-                    instance.addonManager.unload(args[2]);
-                    player.sendMessage(
-                        ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.GREEN + "Successfully unloaded " + ChatColor.WHITE + args[2]);
+                    instance.addonManager.unload(args[1]);
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.GREEN + "Successfully unloaded " + ChatColor.WHITE + args[1]);
                     return;
                 }
                 player.sendMessage(ChatColor.RED + "No addon found for provided input "
                         + ChatColor.WHITE + args[1]);
                 return;
-            }
-            // TODO: Fix disenchanter
-            // case "disenchant": {
-            //     Player playertoCheck;
-            //     if (args.length == 4) {
-            //         playertoCheck = instance.getServer().getPlayer(args[3]);
-            //     } else {
-            //         playertoCheck = player;
-            //     }
-
-            //     if (args.length < 3) {
-            //         playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.RED + "You must need to specify at least one enchantment and level!");
-            //         return;
-            //     }
-
-                
-            //     if (!playertoCheck.getInventory().getItemInMainHand().getType().equals(Material.DIAMOND_PICKAXE)) {
-            //         playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.RED + "You must hold an item to enchant!");
-            //         return;
-            //     }
-
-            //     if (!instance.enchantManager.registeredEnchants.containsKey(args[1])) {
-            //         playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + args[1] + ChatColor.RED + " is not a valid enchantment!");
-            //         return;
-            //     }
-            //     int i;
-            //     try {
-            //         i=Integer.parseInt(args[2]);
-            //     } catch (NumberFormatException e) {
-            //         playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + args[2] + ChatColor.RED + " is not a valid number!");
-            //         return;
-            //     }
-            //     Enchant enchant = instance.enchantManager.registeredEnchants.get(args[1]);
-            //     // if (i>enchant.max) i = enchant.max;
-            //     // remove tokens
-            //     AddonBasics basics = AddonBasics.getInstance();
-            //     ItemStack hand = playertoCheck.getInventory().getItemInMainHand();
-            //     // What level is player currently at?
-            //     int currentlevel = instance.enchantManager.getEnchantLevel(hand, args[1]);
-            //     if (currentlevel == 0) {
-            //         playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.RED + "You cant disenchant this any more since your level is already at 0!");
-            //         return;
-            //     }
-
-            //     // if (i > 0) {
-            //     //     i = i + currentlevel;
-            //     // }
-
-            //     // if (i > enchant.max) {
-            //     //     i = enchant.max;
-            //     // }
-
-            //     int levelToGoTo = currentlevel - i;
- 
-            //     if (levelToGoTo < 0) {
-            //         levelToGoTo = 0;
-            //     }
-
-            //     playertoCheck.sendMessage("YOUR CURRENT PICKAXE LEVEL IS: " + currentlevel + " YOU WANT TO ENCHANT TO: " + i + " LEVELS");
-            //     int maxUserCanRefund = 0;
-            //     long refundAmount = 0;
-            //     if (currentlevel == 1 && i == 1) {
-            //         refundAmount = enchant.cost;
-            //         maxUserCanRefund = 1;
-            //     } else {
-            //         // count i amount down
-            //         for (int level = currentlevel; level >= levelToGoTo; level--) {
-            //             if (level == currentlevel) level = level - 1;
-            //             playertoCheck.sendMessage("loop: " + level + " refund amount this loop:" + (enchant.cost * level));
-            //             maxUserCanRefund++;
-            //             refundAmount = refundAmount + (enchant.cost * level);
-            //         }
-            //     }
-
-            //     if (refundAmount == 0) {
-            //         playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.RED + "You don't have enough tokens to enchant this item!");
-            //         return;
-            //     }
-            //     playertoCheck.sendMessage("total cost: " + refundAmount + " tokens to enchant this item to level " + (i) + " max you can refund is " + maxUserCanRefund + " levels");
-            //     if (basics.getTokens(playertoCheck.getUniqueId(), false) < refundAmount) {
-            //         playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.RED + "You don't have enough tokens to enchant this item!");
-            //         return;
-            //     }
-            //     basics.addTokensWithoutFiringEvent(playertoCheck.getUniqueId(), refundAmount);
-            //     if (levelToGoTo == 0) {
-            //         playertoCheck.getInventory().setItemInMainHand(instance.enchantManager.removeEnchant(hand, enchant));
-            //     } else {
-            //         playertoCheck.getInventory().setItemInMainHand(instance.enchantManager.enchant(hand, enchant, levelToGoTo));
-            //     }
-                
-            //     playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.GREEN + "Successfully enchant the held item with " + ChatColor.WHITE + args[1]);
-            //     return;
-            // }
-            case "updatelore": {
-                Enchant enchant = instance.enchantManager.registeredEnchants.get(args[1]);
-                // if (i>enchant.max) i = enchant.max;
-                // remove tokens
-                // AddonBasics basics = AddonBasics.getInstance();
-                ItemStack hand = player.getInventory().getItemInMainHand();
-                // What level is player currently at?
-                // int currentlevel = instance.enchantManager.getEnchantLevel(hand, args[1]);
-                
-                
-                player.getInventory().setItemInMainHand(instance.enchantManager.enchant(hand,enchant,1,player));
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.GREEN + "Updated the lore!");
-                return;  
             }
             case "enchant": {
                 Player playertoCheck;
@@ -279,11 +184,11 @@ public class CmdPlasmaPrison extends XCommand {
                 ItemMeta meta = pick.getItemMeta();
                 meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&d" + target.getName() + "'s Pickaxe"));
                 pick.setItemMeta(meta);
-                target.getInventory().setItem(0, instance.enchantManager.enchant(pick, instance.enchantManager.registeredEnchants.get("fortune"), 5, target));
+                target.getInventory().setItem(0, instance.enchantManager.enchant(pick, instance.enchantManager.registeredEnchants.get("fortune"), 100, target));
                 pick = target.getInventory().getItem(0);
                 target.getInventory().setItem(0, instance.enchantManager.enchant(pick, instance.enchantManager.registeredEnchants.get("efficiency"), 1000, target));
                 pick = target.getInventory().getItem(0);
-                target.getInventory().setItem(0, instance.enchantManager.enchant(pick, instance.enchantManager.registeredEnchants.get("tokenator"), 5, target));
+                target.getInventory().setItem(0, instance.enchantManager.enchant(pick, instance.enchantManager.registeredEnchants.get("tokenator"), 10, target));
                 pick = target.getInventory().getItem(0);
                 target.getInventory().setItem(0, instance.enchantManager.enchant(pick, instance.enchantManager.registeredEnchants.get("haste"), 5, target));
                 // check if slot 0 had an item in it
@@ -323,10 +228,37 @@ public class CmdPlasmaPrison extends XCommand {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.RED + "You don't have permission to do that!");
                     return;
                 } else {
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.GREEN + "Reloading...");
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.GREEN + "Reloading Addons...");
                     instance.addonManager.reloadAddons();
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.GREEN + "Reloaded!");
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.GREEN + "Reloaded Addons!");
+                    return;
                 }
+            }
+            case "nbtdata": {
+                if (!player.hasPermission("plasmaprison.admin")) {
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.RED + "You don't have permission to do that!");
+                    return;
+                } else {
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.GREEN + "NBT Data:");
+                    ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
+                    if (itemInMainHand != null && !itemInMainHand.getType().equals(Material.AIR)) {
+                        ItemStack item = new ItemStack(itemInMainHand);
+                        net.minecraft.server.v1_12_R1.ItemStack itemStack = CraftItemStack.asNMSCopy(item);
+                        NBTTagCompound nbtTagCompound = itemStack.getTag();
+
+                        if (nbtTagCompound == null)
+                            nbtTagCompound = new NBTTagCompound();
+
+                        if (item != null && !item.getType().equals(Material.AIR)) {
+
+                            Set<String> keys = nbtTagCompound.c();
+                            for (String key : keys) {
+                                player.sendMessage(key + ": " + nbtTagCompound.get(key).toString());
+                            }
+                        }
+                    }
+                }
+                return;
             }
             default:
                 for (String s : help) {
