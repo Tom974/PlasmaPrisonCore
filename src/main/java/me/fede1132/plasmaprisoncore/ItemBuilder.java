@@ -2,21 +2,16 @@ package me.fede1132.plasmaprisoncore;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Map;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import de.tr7zw.nbtapi.NBTCompound;
 import de.tr7zw.nbtapi.NBTItem;
 import de.tr7zw.nbtapi.NBTListCompound;
-import me.fede1132.plasmaprisoncore.Enchant;
 import de.leonhard.storage.Yaml;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 
 public class ItemBuilder implements Cloneable {
   public ItemStack item;
