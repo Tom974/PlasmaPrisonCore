@@ -38,15 +38,7 @@ public abstract class Enchant {
     public abstract BreakResult onBreak(BlockBreakEvent event);
 
     public long calcCost(int from, int to) {
-        // loop through hashmap
-        // for (Entry<Integer, Long> entry : costs.entrySet()) {
-        //     if (entry.getKey() > from && entry.getKey() <= to) {
-        //         Bukkit.getConsoleSender().sendMessage("cost for: " + entry.getKey() + " cost: " + entry.getValue());
-        //     }
-        // }
         return costs.entrySet().stream().filter(entry -> entry.getKey() > from && entry.getKey() <= to).mapToLong(Map.Entry::getValue).sum();
-
-        // loop through costs.entrySet().stream().filter(entry -> entry.getKey() > from && entry.getKey() <= to)
     }
 
 }
