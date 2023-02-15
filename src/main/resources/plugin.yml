@@ -3,7 +3,7 @@ version: ${project.version}
 main: me.fede1132.plasmaprisoncore.PlasmaPrisonCore
 prefix: PlasmaPrison
 load: POSTWORLD
-authors: [PlasmaDevTeam]
+authors: [MyNqme, Fede1132]
 description: Plasma custom prison core
-softdepend: [Essentials, Vault, WorldEdit, WorldGuard, FastAsyncWorldEdit]
+softdepend: [Essentials, Vault, WorldEdit, WorldGuard, FastAsyncWorldEdit, ElementalGems]
 depend: [Vault, PlaceholderAPI, AutoSell, Essentials]
