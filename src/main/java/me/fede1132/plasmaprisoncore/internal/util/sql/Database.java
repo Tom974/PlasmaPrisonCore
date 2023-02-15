@@ -1,11 +1,14 @@
 package me.fede1132.plasmaprisoncore.internal.util.sql;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.zaxxer.hikari.HikariDataSource;
 import me.fede1132.plasmaprisoncore.PlasmaPrisonCore;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -50,10 +53,34 @@ public class Database {
             e.printStackTrace();
         } finally {
             pool.close(conn, ps, rs);
-        }   
+        }
+
+        try {
+            conn = pool.getConnection();
+            ps = conn.prepareStatement("SELECT * FROM `plasmaprison_tokens` WHERE uuid = ?");
+            ps.setString(1, uuid.toString());
+            rs = ps.executeQuery();
+            boolean b = rs.next();
+            if (b) {
+                pool.close(conn, ps, rs);
+                return;
+            }
+
+            Bukkit.getLogger().info("User "+playername+" does not exist in database, creating new entry...");
+            pool.close(conn, ps, rs);
+            conn = pool.getConnection();
+            ps = conn.prepareStatement("INSERT INTO `plasmaprison_tokens` (uuid, tokens) VALUES (?,?)");
+            ps.setString(1, uuid.toString());
+            ps.setString(2, "0");
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            pool.close(conn, ps, rs);
+        }
     }
 
-    public void onLeave(String playername, UUID uuid) {
+    public void onLeave(UUID uuid) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -122,30 +149,8 @@ public class Database {
             } finally {
                 pool.close(conn, ps, rs);
             }
-            
+
         }
-        // Connection conn = null;
-        // PreparedStatement ps = null;
-        // ResultSet rs = null;
-        // try {
-        //     conn = pool.getConnection();
-        //     ps = conn.prepareStatement("SELECT * FROM plasmaprison_tokens WHERE uuid = ?");
-        //     ps.setString(1,uuid.toString());
-        //     rs = ps.executeQuery();
-        //     boolean b = rs.next();
-        //     pool.close(conn, ps, rs);
-        //     conn = pool.getConnection();
-        //     ps = conn.prepareStatement(b ? "UPDATE `plasmaprison_tokens` SET `tokens` = ? WHERE `uuid` = ?" : "INSERT INTO `plasmaprison_tokens` (`tokens`,`uuid`) VALUES (?,?)");
-        //     i = rs.getLong("tokens") - i;
-        //     if (i < 0) i = 0;
-        //     ps.setString(1, b ? String.valueOf(i) : "0");
-        //     ps.setString(2, uuid.toString());
-        //     ps.executeUpdate();
-        // } catch (SQLException e) {
-        //     e.printStackTrace();
-        // } finally {
-        //     pool.close(conn, ps, rs);
-        // }
     }
 
     public void addTokens(UUID uuid, long i, long max) {
@@ -181,35 +186,47 @@ public class Database {
             }
             
         }
-        // Connection conn = null;
-        // PreparedStatement ps = null;
-        // ResultSet rs = null;
-        // try {
-        //     conn = pool.getConnection();
-        //     ps = conn.prepareStatement("SELECT * FROM plasmaprison_tokens WHERE uuid = ?");
-        //     ps.setString(1,uuid.toString());
-        //     rs = ps.executeQuery();
-        //     boolean b = rs.next();
-        //     i = rs.getLong("tokens") + i;
-        //     pool.close(conn, ps, rs);
-        //     conn = pool.getConnection();
-        //     ps = conn.prepareStatement(b ? "UPDATE `plasmaprison_tokens` SET `tokens` = ? WHERE `uuid` = ?" : "INSERT INTO `plasmaprison_tokens` (`tokens`,`uuid`) VALUES (?,?)");
-        //     ps.setString(1, String.valueOf(i));
-        //     ps.setString(2, uuid.toString());
-        //     ps.executeUpdate();
-        // } catch (SQLException e) {
-        //     e.printStackTrace();
-        // } finally {
-        //     pool.close(conn, ps, rs);
-        // }
+    }
+
+    public HashMap<UUID, HashMap<String, Integer>> getCellValues() {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        HashMap<UUID, HashMap<String, Integer>> map = new HashMap<>();
+        try {
+            conn = pool.getConnection();
+            ps = conn.prepareStatement("SELECT * FROM virtualcellvalue");
+            rs = ps.executeQuery();
+            // convert uuid string to uuid object
+            while (rs.next()) {
+                UUID uuid = UUID.fromString(rs.getString("owner"));
+                String item_counts = rs.getString("item_counts");
+                // convert json string to hashmap
+                HashMap<String, Integer> item_counts_map = new Gson().fromJson(item_counts, new TypeToken<HashMap<String, Integer>>(){}.getType());
+                map.put(uuid, item_counts_map);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            pool.close(conn, ps, rs);
+            return map;
+        }
     }
 
     public long getTokens(UUID uuid, boolean fromDatabase) {
-        if (this.plugin.tokens.containsKey(uuid) && !fromDatabase) {
+        if (!fromDatabase) {
             // get player by uuid
             // Bukkit.getPlayer(uuid).sendMessage("§a§lDEBUG: §f§lUsing cached tokens");
-            return this.plugin.tokens.get(uuid);
-        } else if (fromDatabase) {
+            if (this.plugin.tokens.containsKey(uuid)) {
+                Bukkit.getLogger().info("Loaded tokens for " + uuid.toString() + ": " + this.plugin.tokens.get(uuid));
+                return this.plugin.tokens.get(uuid);
+            } else {
+                Bukkit.getLogger().info("Fetching from db...");
+                fromDatabase = true; // fetch from db again
+            }
+        }
+
+        if (fromDatabase) {
             Connection conn = null;
             PreparedStatement ps = null;
             ResultSet rs = null;
@@ -233,38 +250,18 @@ public class Database {
                 e.printStackTrace();
             } finally {
                 pool.close(conn, ps, rs);
+                Bukkit.getLogger().info("Loaded tokens for " + uuid.toString() + ": " + tokens);
+                return tokens;
             }
-
-            return tokens;
-        } else {
-            Bukkit.getLogger().severe("§c§lERROR: §f§lPlayer not found in cache or database! TELL MyNqme IMMEDIATELY (Extra info: " + uuid.toString() + ")");
-            return 0;
         }
+
+        Bukkit.getLogger().severe("§c§lERROR: §f§lPlayer not found in cache or database! TELL MyNqme IMMEDIATELY (Extra info: " + uuid.toString() + ")");
+        return 0;
     }
 
     public void setTokens(UUID uuid, long i) {
+        Bukkit.getLogger().info("updaten to " + i + " for " + uuid.toString() + "...");
         this.plugin.tokens.put(uuid, i);
-        
-        // Connection conn = null;
-        // PreparedStatement ps = null;
-        // ResultSet rs = null;
-        // try {
-        //     conn = pool.getConnection();
-        //     ps = conn.prepareStatement("SELECT * FROM plasmaprison_tokens WHERE uuid = ?");
-        //     ps.setString(1,uuid.toString());
-        //     rs = ps.executeQuery();
-        //     boolean b = rs.next();
-        //     pool.close(conn, ps, rs);
-        //     conn = pool.getConnection();
-        //     ps = conn.prepareStatement(b ? "UPDATE `plasmaprison_tokens` SET `tokens` = ? WHERE `uuid` = ?" : "INSERT INTO `plasmaprison_tokens` (`tokens`,`uuid`) VALUES (?,?)");
-        //     ps.setString(1, String.valueOf(i));
-        //     ps.setString(2, uuid.toString());
-        //     ps.executeUpdate();
-        // } catch (SQLException e) {
-        //     e.printStackTrace();
-        // } finally {
-        //     pool.close(conn, ps, rs);
-        // }
     }
 
     public void createTokensTable() {
