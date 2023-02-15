@@ -1,15 +1,7 @@
 package me.fede1132.plasmaprisoncore.util;
 
-import me.fede1132.plasmaprisoncore.enchant.Enchant;
 import me.fede1132.plasmaprisoncore.PlasmaPrisonCore;
-import me.fede1132.plasmaprisoncore.enchant.EnchantManager;
-
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
