@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -213,10 +214,51 @@ public class Database {
         }
     }
 
+    public void removeCellValue(UUID uuid, String type, int amount) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        HashMap<UUID, HashMap<String, Integer>> map = new HashMap<>();
+        try {
+            conn = pool.getConnection();
+            ps = conn.prepareStatement("SELECT * FROM `virtualcellvalue` WHERE `owner` = ?");
+            ps.setString(1, uuid.toString());
+            rs = ps.executeQuery();
+            // convert uuid string to uuid object
+            if (rs.next()) {
+                String item_counts = rs.getString("item_counts");
+                // convert json string to hashmap
+                HashMap<String, Integer> item_counts_map = new Gson().fromJson(item_counts, new TypeToken<HashMap<String, Integer>>(){}.getType());
+                if (item_counts_map.containsKey(type)) {
+                    int current = item_counts_map.get(type);
+                    if (current - amount < 0) {
+                        item_counts_map.put(type, 0);
+                    } else {
+                        item_counts_map.put(type, current - amount);
+                    }
+                } else {
+                    item_counts_map.put(type, 0);
+                }
+                item_counts = new Gson().toJson(item_counts_map);
+
+                pool.close(conn, ps, rs);
+                conn = pool.getConnection();
+                ps = conn.prepareStatement("UPDATE virtualcellvalue SET item_counts = ? WHERE owner = ?");
+                ps.setString(1, item_counts);
+                ps.setString(2, uuid.toString());
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            pool.close(conn, ps, rs);
+        }
+    }
+
     public long getTokens(UUID uuid, boolean fromDatabase) {
         if (!fromDatabase) {
             // get player by uuid
-            // Bukkit.getPlayer(uuid).sendMessage("§a§lDEBUG: §f§lUsing cached tokens");
+//             Bukkit.getLogger().info("§a§lDEBUG: §f§lUsing cached tokens");
             if (this.plugin.tokens.containsKey(uuid)) {
 //                Bukkit.getLogger().info("Loaded tokens for " + uuid.toString() + ": " + this.plugin.tokens.get(uuid));
                 return this.plugin.tokens.get(uuid);
