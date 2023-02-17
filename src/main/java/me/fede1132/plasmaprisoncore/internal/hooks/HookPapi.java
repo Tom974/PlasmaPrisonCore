@@ -82,14 +82,14 @@ public class HookPapi extends PlaceholderExpansion {
             Enchant enchant = this.manager.registeredEnchants.get(enchant_name);
             // return (ench.cost * amount) + "";
             if (enchant == null) return "Enchant not found!";
-            if (amount>enchant.max) amount = enchant.max;
+            if (amount > enchant.max) amount = enchant.max;
             // remove tokens
             ItemStack hand = player.getInventory().getItemInMainHand();
             // What level is player currently at?
             int currentlevel = this.manager.getEnchantLevel(hand, enchant_name);
             
             int to = (amount + currentlevel);
-            if (to >= enchant.max) to = enchant.max - 1;
+            if (to >= enchant.max) to = enchant.max;
             // player.sendMessage("currentlevel: " + currentlevel);
             // player.sendMessage("max: " + enchant.max);
             // player.sendMessage("amount: " + amount);
