@@ -13,9 +13,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -142,6 +146,7 @@ public class EnchantManager {
         } else if (enchant instanceof EnchantFortune) {
             item.addUnsafeEnchantment(Enchantment.LOOT_BONUS_BLOCKS, level);
         }
+
         return item;
     }
 
