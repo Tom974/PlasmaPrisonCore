@@ -51,6 +51,10 @@ public class AddonBasics extends Addon {
     public HashMap<UUID, HashMap<String, Integer>> getCellValues() {
         return plugin.database.getCellValues();
     }
+
+    public void removeCellValue(UUID uuid, String type, int amount) {
+        plugin.database.removeCellValue(uuid, type, amount);
+    }
     
 
     /** Set player's tokens
@@ -65,7 +69,7 @@ public class AddonBasics extends Addon {
             i = 0;
         }
 
-//        Bukkit.getLogger().info("Setting tokens to " + i + " for " + uuid.toString() + "...");
+        Bukkit.getLogger().info("Setting tokens to " + i + " for " + uuid.toString() + "...");
 
         plugin.database.setTokens(uuid, i);
     }
