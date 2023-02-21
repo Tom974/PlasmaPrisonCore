@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 
-import com.mysql.jdbc.PreparedStatement;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 

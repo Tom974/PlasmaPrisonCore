@@ -59,6 +59,7 @@ public final class PlasmaPrisonCore extends JavaPlugin {
         pm.registerEvents(new PlayerJoin(), this);
         pm.registerEvents(new PlayerLeave(), this);
         pm.registerEvents(new RightClick(), this);
+        pm.registerEvents(new ExploitEvents(), this);
         pm.registerEvents(new BlockBreak(), this);
         pm.registerEvents(new CommandPreProcess(), this);
         log("Loading vault lib");
@@ -83,6 +84,7 @@ public final class PlasmaPrisonCore extends JavaPlugin {
         for (UUID uuid : this.tokens.keySet()) {
             this.database.saveTokens(uuid, this.tokens.get(uuid));
         }
+        log("Closing database pool..");
         database.closeConnections();
     }
 

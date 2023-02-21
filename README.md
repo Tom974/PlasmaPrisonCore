@@ -1,3 +1,0 @@
-# PlasmaPrisonCore
-
-Made by **PlasmaDevTeam**

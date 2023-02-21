@@ -102,6 +102,56 @@ public class CmdPlasmaPrison extends XCommand {
                         + ChatColor.WHITE + args[1]);
                 return;
             }
+            case "disenchant": {
+                Player playertoCheck;
+                if (args.length == 4) {
+                    playertoCheck = instance.getServer().getPlayer(args[3]);
+                } else {
+                    playertoCheck = player;
+                }
+
+                if (args.length < 3) {
+                    playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.RED + "You must need to specify at least one enchantment and level!");
+                    return;
+                }
+
+                if (!playertoCheck.getInventory().getItemInMainHand().getType().equals(Material.DIAMOND_PICKAXE)) {
+                    playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.RED + "You must hold an item to enchant!");
+                    return;
+                }
+
+                if (!instance.enchantManager.registeredEnchants.containsKey(args[1])) {
+                    playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + args[1] + ChatColor.RED + " is not a valid enchantment!");
+                    return;
+                }
+                int i;
+                try {
+                    i=Integer.parseInt(args[2]);
+                } catch (NumberFormatException e) {
+                    playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + args[2] + ChatColor.RED + " is not a valid number!");
+                    return;
+                }
+                Enchant enchant = instance.enchantManager.registeredEnchants.get(args[1]);
+                // remove tokens
+                AddonBasics basics = AddonBasics.getInstance();
+                ItemStack hand = playertoCheck.getInventory().getItemInMainHand();
+                // What level is player currently at?
+                int currentlevel = instance.enchantManager.getEnchantLevel(hand, args[1]);
+                i = currentlevel - i;
+
+                long refund_amount = enchant.calcCost(i, currentlevel);
+                refund_amount = (refund_amount / 100) * 40; /* 40% refund percentage */
+                if (refund_amount == 0) {
+                    playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.RED + "Uhm, Please report this to MyNqme: (Cost was 0?)");
+                    return;
+                }
+
+                playertoCheck.sendMessage("You received: " + refund_amount + " tokens to remove " + i + " levels");
+                basics.addTokensWithoutFiringEvent(playertoCheck.getUniqueId(), refund_amount);
+                playertoCheck.getInventory().setItemInMainHand(instance.enchantManager.enchant(hand,enchant,i,playertoCheck));
+                playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.GREEN + "Successfully disenchanted the held item with " + ChatColor.WHITE + args[1]);
+                return;
+            }
             case "enchant": {
                 Player playertoCheck;
                 if (args.length == 4) {
@@ -204,7 +254,7 @@ public class CmdPlasmaPrison extends XCommand {
                 player.sendMessage("Registered enchants:");
                 EnchantManager.getInst().registeredEnchants.values().stream().sorted(Comparator.comparing(Enchant::getId)).forEach(enchant->{
                     TextComponent text = new TextComponent();
-                    text.setText(ChatColor.WHITE + " - " + ChatColor.GREEN.toString() + ChatColor.BOLD + enchant.getId());
+                    text.setText(ChatColor.WHITE + " - " + ChatColor.GREEN + ChatColor.BOLD + enchant.getId());
                     StringBuilder sb = new StringBuilder();
                     for (SimpleEntry<String, Object> entry : enchant.options) {
                         sb.append("&f").append(entry.getKey()).append(": &a").append(entry.getValue().toString()).append("\n");
@@ -212,7 +262,7 @@ public class CmdPlasmaPrison extends XCommand {
 
                     String adminString = "";
                     if (player.hasPermission("plasmaprison.admin")) {
-                        adminString = "\n&fDefault cost: &a" + enchant.cost + "\n" +"\n&eOptions:\n" + sb.toString();
+                        adminString = "\n&fDefault cost: &a" + enchant.cost + "\n" +"\n&eOptions:\n" + sb;
                     }
                     text.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(
                             ChatColor.translateAlternateColorCodes('&', "DisplayName: &a" + enchant.displayName +
@@ -249,7 +299,7 @@ public class CmdPlasmaPrison extends XCommand {
                         if (nbtTagCompound == null)
                             nbtTagCompound = new NBTTagCompound();
 
-                        if (item != null && !item.getType().equals(Material.AIR)) {
+                        if (!item.getType().equals(Material.AIR)) {
 
                             Set<String> keys = nbtTagCompound.c();
                             for (String key : keys) {
