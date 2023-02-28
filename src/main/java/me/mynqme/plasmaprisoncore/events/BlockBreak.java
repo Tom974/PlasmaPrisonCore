@@ -24,7 +24,7 @@ public class BlockBreak implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onBreak(BlockBreakEvent event) {
         event.setDropItems(false);
-        if (event.isCancelled() || event.getPlayer().getInventory().getItemInMainHand()==null || event.getPlayer().getInventory().getItemInMainHand().getType()== Material.AIR) return;
+        if (event.isCancelled() || event.getPlayer().getInventory().getItemInMainHand() == null || event.getPlayer().getInventory().getItemInMainHand().getType() == Material.AIR) return;
         Bukkit.getScheduler().runTaskAsynchronously(core, ()->{
             NBTCompound enchants = core.enchantManager.getEnchantCompound(event.getPlayer().getInventory().getItemInMainHand());
             List<BreakResult> results = core.enchantManager.registeredEnchants.values().stream()
@@ -57,9 +57,8 @@ public class BlockBreak implements Listener {
     }
 
     private boolean chance(int max, int lvl, double maxChance) {
-        int rnd = new Random().nextInt(99);
         double percent = ((double) lvl / (double) max) * 100D;
         if (percent>maxChance) percent = maxChance;
-        return percent>=rnd;
+        return percent >= (Math.round(Math.random() * 1000) / 10.0);
     }
 }
