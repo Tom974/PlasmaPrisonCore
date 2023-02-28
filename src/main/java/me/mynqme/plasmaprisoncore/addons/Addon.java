@@ -7,6 +7,7 @@ import me.mynqme.plasmaprisoncore.enchant.Enchant;
 import me.mynqme.plasmaprisoncore.enchant.EnchantManager;
 // import me.mynqme.plasmaprisoncore.internal.hooks.PapiPlaceholder;
 import me.mynqme.plasmaprisoncore.internal.util.SimpleEntry;
+import me.mynqme.plasmaprisoncore.util.AsyncTask;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
 import org.bukkit.event.HandlerList;
@@ -78,10 +79,9 @@ public abstract class Addon {
             enchant.loreColor = yaml.getOrSetDefault(path+"lore-color", enchant.loreColor);
             enchant.max = yaml.getOrSetDefault(path+"max", enchant.max);
             enchant.cost = yaml.getOrSetDefault(path+"cost", enchant.cost);
-            enchant.jsScript = yaml.getOrSetDefault(path+"cost-script", "{current_cost} * 2"); // current_cost and current_level placeholders
             enchant.maxChance = yaml.getOrSetDefault(path+"max-chance", enchant.maxChance);
             enchant.refundPercent = yaml.getOrSetDefault(path+"refund-percent", enchant.refundPercent);
-            if (enchant.options!=null) for (int j=0;j<enchant.options.length;j++) {
+            if (enchant.options != null) for (int j = 0; j < enchant.options.length; j++) {
                 SimpleEntry<String,Object> option = enchant.options[j];
                 option.setValue(yaml.getOrSetDefault(path+option.getKey(), option.getValue()));
                 enchant.options[j] = option;
@@ -89,7 +89,9 @@ public abstract class Addon {
             list.add(enchant);
         }
         EnchantManager manager = plugin.enchantManager;
-        list.forEach(manager::register);
+        new AsyncTask(() -> {
+            list.forEach(manager::register);
+        });
     }
 
     public String[] getEnchants() {

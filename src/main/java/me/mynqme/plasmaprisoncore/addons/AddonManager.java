@@ -35,6 +35,7 @@ public class AddonManager {
     }
     private final PlasmaPrisonCore instance = PlasmaPrisonCore.getInstance();
     public HashMap<String, CachedAddon> addons = new HashMap<>();
+
     public void reloadAddons() {
         try {
             if (!addons.isEmpty()) {

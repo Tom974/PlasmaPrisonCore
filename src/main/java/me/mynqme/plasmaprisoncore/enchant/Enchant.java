@@ -15,7 +15,6 @@ public abstract class Enchant {
     public String loreColor;
     public double maxChance;
     public SimpleEntry<String,Object>[] options;
-    public String jsScript;
     public HashMap<Integer, Long> costs = new HashMap<>();
     public int refundPercent = 40;
     @SafeVarargs
