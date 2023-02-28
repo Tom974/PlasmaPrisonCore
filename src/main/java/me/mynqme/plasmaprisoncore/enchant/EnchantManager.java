@@ -30,22 +30,15 @@ public class EnchantManager {
     }
 
     public void register(Enchant enchant) {
-        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN+"(!) Registering enchant "+enchant.getId()+"...");
-        long curr=enchant.cost;
-        long base=enchant.cost;
-        for (int i=0;i<=enchant.max;i++) {
-            try {
-                Object res = js.eval(Placeholder.replace(enchant.jsScript, new Placeholder("current_level", i), new Placeholder("current_cost", curr), new Placeholder("base", base)));
-                long value = res instanceof Long ? (long) res : (res instanceof Double ? Math.round((Double) res) : (Integer) res);
-                curr=value;
-                enchant.costs.put(i, value);
-            } catch (ScriptException e) {
-                e.printStackTrace();
-            }
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "(!) Registering enchant "+enchant.getId()+"...");
+        long base = enchant.cost;
+        for (int i = 0; i <= enchant.max; i++) {
+            long value = enchant.cost * i;
+            enchant.costs.put(i, value);
         }
-        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN+"(!) Adding enchant "+enchant.getId()+"...");
+
         this.registeredEnchants.put(enchant.getId(), enchant);
-        Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_GREEN+"(!) Done Registering enchant "+enchant.getId()+"...");
+        Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_GREEN + "(!) Done Registering enchant "+enchant.getId()+"...");
     }
 
     public boolean hasEnchant(ItemStack item, String id) {
