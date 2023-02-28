@@ -10,9 +10,7 @@ public class PlayerJoin implements Listener {
     private final PlasmaPrisonCore plugin = PlasmaPrisonCore.getInstance();
     @EventHandler(priority = EventPriority.LOW)
     public void onJoin(PlayerJoinEvent event) {
-        plugin.database.onJoin(event.getPlayer().getName(), event.getPlayer().getUniqueId());;
-        event.getPlayer().sendMessage("Putting stuff in array!");
+        plugin.database.onJoin(event.getPlayer().getName(), event.getPlayer().getUniqueId());
         plugin.tokens.put(event.getPlayer().getUniqueId(), plugin.database.getTokens(event.getPlayer().getUniqueId(),true));
-        event.getPlayer().sendMessage("array value: " + plugin.tokens.get(event.getPlayer().getUniqueId()));
     }
 }
