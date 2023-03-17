@@ -45,10 +45,10 @@ public final class PlasmaPrisonCore extends JavaPlugin {
     public void onEnable() {
         log("Plasma Prison Core v" + getDescription().getVersion());
         log("Loading files..");
-        database = new Database(this);
         config = SimplixBuilder.fromFile(new File(getDataFolder(),"config")).addInputStream(getResource("config.yml")).setConfigSettings(ConfigSettings.PRESERVE_COMMENTS).createYaml();
         chat = SimplixBuilder.fromFile(new File(getDataFolder(),"chat")).addInputStream(getResource("chat.yml")).setConfigSettings(ConfigSettings.PRESERVE_COMMENTS).createYaml();
         messages = SimplixBuilder.fromFile(new File(getDataFolder(), "messages")).addInputStream(getResource("messages.yml")).setConfigSettings(ConfigSettings.PRESERVE_COMMENTS).createYaml();
+        database = new Database(this);
         log("Loading command and hooks..");
         instance = this;
         log("Loading tokens from players..");

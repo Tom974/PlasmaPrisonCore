@@ -213,10 +213,11 @@ public class CmdPlasmaPrison extends XCommand {
                     return;
                 }
 
-                playertoCheck.sendMessage("You paid: " + cost + " tokens to enchant this item to level " + (i) + " max you can enchant is " + enchant.max + " levels");
+//                playertoCheck.sendMessage("You paid: " + cost + " tokens to enchant this item to level " + (i) + " max you can enchant is " + enchant.max + " levels");
                 basics.removeTokensWithoutFiringEvent(playertoCheck.getUniqueId(), cost);
                 playertoCheck.getInventory().setItemInMainHand(instance.enchantManager.enchant(hand,enchant,i,playertoCheck));
-                playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.GREEN + "Successfully enchant the held item with " + ChatColor.WHITE + args[1]);
+                playertoCheck.sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lPlasma&f&lMC &8» &f") + ChatColor.GREEN + "Successfully enchant the held item with " + ChatColor.WHITE + args[1] +
+                        ChatColor.DARK_GRAY + "(" + ChatColor.GREEN + cost + ChatColor.DARK_GRAY + ")");
                 return;
             }
             case "givepick": {
@@ -262,9 +263,11 @@ public class CmdPlasmaPrison extends XCommand {
                     TextComponent text = new TextComponent();
                     text.setText(ChatColor.WHITE + " - " + ChatColor.GREEN + ChatColor.BOLD + enchant.getId());
                     StringBuilder sb = new StringBuilder();
-                    for (SimpleEntry<String, Object> entry : enchant.options) {
-                        sb.append("&f").append(entry.getKey()).append(": &a").append(entry.getValue().toString()).append("\n");
-                    }
+                    // print enchant.options in chat
+//                    player.sendMessage("Options for " + enchant.getId() + ":");
+//                    for (SimpleEntry<String, Object> entry : enchant.options) {
+//                        sb.append("&f").append(entry.getKey()).append(": &a").append(entry.getValue().toString()).append("\n");
+//                    }
 
                     String adminString = "";
                     if (player.hasPermission("plasmaprison.admin")) {

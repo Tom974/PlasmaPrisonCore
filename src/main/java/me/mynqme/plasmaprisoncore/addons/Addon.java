@@ -89,9 +89,7 @@ public abstract class Addon {
             list.add(enchant);
         }
         EnchantManager manager = plugin.enchantManager;
-        new AsyncTask(() -> {
-            list.forEach(manager::register);
-        });
+        list.forEach(manager::register);
     }
 
     public String[] getEnchants() {

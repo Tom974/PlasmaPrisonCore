@@ -23,7 +23,7 @@ import java.util.*;
 
 public class EnchantManager {
     private static EnchantManager inst;
-    private final ScriptEngine js = new ScriptEngineManager().getEngineByName("javascript");
+
     public final HashMap<String, Enchant> registeredEnchants = new HashMap<>();
     public EnchantManager() {
         inst = this;
@@ -58,13 +58,14 @@ public class EnchantManager {
     }
 
     public int getEnchantLevel(ItemStack item, String id) {
-        if (item==null||item.getType()==Material.AIR) return 0;
+        if (item == null) return 0;
+        if (!item.getType().equals(Material.DIAMOND_PICKAXE)) return 0;
         NBTItem nbti = new NBTItem(item);
         if (!nbti.hasTag("PlasmaPrison")) return 0;
         NBTCompound plasmaPrison = nbti.getCompound("PlasmaPrison");
         if (!plasmaPrison.hasTag("enchants")) return 0;
         NBTCompound enchants = plasmaPrison.getCompound("enchants");
-        return enchants.hasTag(id)?enchants.getInteger(id):0;
+        return enchants.hasTag(id) ? enchants.getInteger(id) : 0;
     }
 
     public ItemStack removeEnchant(ItemStack item, Enchant enchant) {
@@ -134,6 +135,7 @@ public class EnchantManager {
         } else if (enchant instanceof EnchantFortune) {
             item.addUnsafeEnchantment(Enchantment.LOOT_BONUS_BLOCKS, level);
         }
+        item.addEnchantment(Enchantment.SILK_TOUCH, 1);
 
         return item;
     }

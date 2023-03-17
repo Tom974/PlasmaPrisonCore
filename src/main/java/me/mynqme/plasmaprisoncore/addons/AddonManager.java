@@ -90,6 +90,7 @@ public class AddonManager {
                     this.instance.getLogger().info("(!) Successfully loaded addon " + name);
                 } catch (Exception e) {
                     e.printStackTrace();
+                    this.instance.getLogger().severe("(!) Could not load addon " + entry.getValue().getString("name") + " due to an error! (!)");
                 }
             });
             this.instance.getLogger().info("(!) Done reloading addons! (!)");

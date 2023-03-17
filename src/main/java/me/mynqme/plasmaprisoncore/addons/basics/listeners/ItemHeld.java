@@ -1,5 +1,6 @@
 package me.mynqme.plasmaprisoncore.addons.basics.listeners;
 
+import me.mynqme.plasmaprisoncore.PlasmaPrisonCore;
 import me.mynqme.plasmaprisoncore.enchant.EnchantManager;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -15,9 +16,11 @@ import java.util.List;
 
 public class ItemHeld implements Listener {
     private final List<PotionEffectType> effects = Arrays.asList(PotionEffectType.JUMP, PotionEffectType.FAST_DIGGING, PotionEffectType.SPEED);
+
     @EventHandler
     public void onHeld(PlayerItemHeldEvent event) {
         Player player = event.getPlayer();
+        if (PlasmaPrisonCore.getInstance().config.getStringList("blacklisted-worlds").contains(player.getWorld().getName())) return;
         ItemStack hand = event.getPlayer().getInventory().getItem(event.getNewSlot());
         if (hand == null || hand.getType() != Material.DIAMOND_PICKAXE) {
             player.getActivePotionEffects().stream().map(PotionEffect::getType).filter(effects::contains).forEach(player::removePotionEffect);

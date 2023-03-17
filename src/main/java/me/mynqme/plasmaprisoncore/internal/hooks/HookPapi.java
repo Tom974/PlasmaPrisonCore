@@ -13,6 +13,10 @@ import net.luckperms.api.node.Node;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+
 public class HookPapi extends PlaceholderExpansion {
     private static HookPapi instance;
     // public List<PapiPlaceholder> placeholders = new ArrayList<>();
@@ -48,25 +52,6 @@ public class HookPapi extends PlaceholderExpansion {
             return basics.getTokens(player.getUniqueId(), false) + "";
         } else if (params.equalsIgnoreCase("tokens_formatted") || params.equalsIgnoreCase("formattedtokens")) {
             return NumberFormat.format(basics.getTokens(player.getUniqueId(), false));
-        } else if (params.equalsIgnoreCase("tokenmultiplier")) {
-            LuckPerms api = LuckPermsProvider.get();
-            User user = api.getPlayerAdapter(Player.class).getUser(player);
-            float highest = (float) 1.0;
-            float highestPerm = (float) 1.0;
-            for (Node node : user.getNodes()) {
-                if (node.getKey().startsWith("plasmaprison.tokens.multiplier") && !node.getKey().contains("perm")) {
-                    float val = Float.valueOf(node.getKey().split("plasmaprison.tokens.multiplier.")[1]);
-                    if (val > highest) highest = val;
-                }
-
-                if (node.getKey().startsWith("plasmaprison.tokens.multiplier.perm")) {
-                    float valPerm = Float.valueOf(node.getKey().split("plasmaprison.tokens.multiplier.perm.")[1]);
-                    if (valPerm > highestPerm) highestPerm = valPerm;
-                }
-            }
-
-            highest = highest + highestPerm;
-            return String.valueOf(highest);
         } else if (params.contains("_level")) {
             // get current level of specified enchant
             String enchant = params.replace("_level", "");
@@ -100,12 +85,30 @@ public class HookPapi extends PlaceholderExpansion {
             level = level + 1;
             if (level > ench.max) level = ench.max;
             return (ench.cost * Long.valueOf(level)) + "";
-        } else if (params.contains("max")) {
-            String enchant_name = params.replace("_max", "");
+        } else if (params.contains("_occurrence_max")) {
+            String enchant_name = params.replace("_occurrence_max", "");
+            Enchant ench = this.manager.registeredEnchants.get(enchant_name);
+            if (ench == null) return "This is not a placeholder! Contact MyNqme";
+            BigDecimal bd = new BigDecimal(String.valueOf(ench.maxChance));
+            return new DecimalFormat("#0.####").format(bd).toString();
+        } else if (params.contains("_occurrence_")) {
+            String enchant_name = params.split("_occurrence_")[0];
+            int currentlevel = Integer.parseInt(params.split("_occurrence_")[1]);
             if (player.getInventory().getItemInMainHand() == null) return "Please hold your pickaxe in your main hand!";
             Enchant ench = this.manager.registeredEnchants.get(enchant_name);
-            return ench.max + "";
-        }  else if (params.contains("_occurrence")) {
+            if (ench == null) return "This is not a placeholder! Contact MyNqme";
+            ItemStack hand = player.getInventory().getItemInMainHand();
+            int enchlevel = this.manager.getEnchantLevel(hand, enchant_name);
+            if (enchlevel != 0) {
+                currentlevel = currentlevel + enchlevel;
+            }
+            // calculate the occurrence based on the current level, the max level and the maxChance
+            double percent = ((double) currentlevel / (double) ench.max) * ench.maxChance;
+            if (percent>ench.maxChance) percent = ench.maxChance;
+            BigDecimal bd = new BigDecimal(String.valueOf(percent));
+
+            return new DecimalFormat("#0.####").format(bd).toString();
+        } else if (params.contains("_occurrence")) {
             String enchant_name = params.replace("_occurrence", "");
             if (player.getInventory().getItemInMainHand() == null) return "Please hold your pickaxe in your main hand!";
             Enchant ench = this.manager.registeredEnchants.get(enchant_name);
@@ -113,11 +116,19 @@ public class HookPapi extends PlaceholderExpansion {
             ItemStack hand = player.getInventory().getItemInMainHand();
             int currentlevel = this.manager.getEnchantLevel(hand, enchant_name);
             if (currentlevel == 0) return "0";
-            double percent = ((double) currentlevel / (double) ench.max) * 100D;
-            // player.sendMessage("Currentlevel:  " + currentlevel + " Max: " + ench.max + " Percent: " + percent);
+            // calculate the occurrence based on the current level, the max level and the maxChance
+            double percent = ((double) currentlevel / (double) ench.max) * ench.maxChance;
             if (percent>ench.maxChance) percent = ench.maxChance;
-            return String.valueOf(percent);
-        } 
+
+            BigDecimal bd = new BigDecimal(String.valueOf(percent));
+
+            return new DecimalFormat("#0.####").format(bd).toString();
+        } else if (params.contains("max")) {
+            String enchant_name = params.replace("_max", "");
+            if (player.getInventory().getItemInMainHand() == null) return "Please hold your pickaxe in your main hand!";
+            Enchant ench = this.manager.registeredEnchants.get(enchant_name);
+            return ench.max + "";
+        }
         return "This is not a placeholder! Contact MyNqme";
         // return placeholders.stream().filter(placeholder->params.startsWith(placeholder.getParam())).limit(1).map(placeholder->placeholder.onRequest(player, params.replace(placeholder.getParam()+"_", "").split("_"))).collect(Collectors.joining(", "));
     }

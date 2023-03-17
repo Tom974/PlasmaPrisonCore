@@ -222,7 +222,7 @@ public class Database {
         if (this.plugin.tokens.containsKey(uuid)) {
             long tokens = this.plugin.tokens.get(uuid);
             if (tokens + i > max) {
-                this.plugin.tokens.put(uuid, 0L);
+                this.plugin.tokens.put(uuid, max);
             } else {
                 this.plugin.tokens.put(uuid, tokens + i);
             }
@@ -366,8 +366,33 @@ public class Database {
     }
 
     public void setTokens(UUID uuid, long i) {
-        Bukkit.getLogger().info("updaten to " + i + " for " + uuid.toString() + "...");
-        this.plugin.tokens.put(uuid, i);
+        Bukkit.getLogger().info("updating tokens to " + i + " for " + uuid.toString() + "...");
+        if (this.plugin.tokens.containsKey(uuid)) {
+            this.plugin.tokens.put(uuid, i);
+        } else {
+            Connection conn = null;
+            PreparedStatement ps = null;
+            ResultSet rs = null;
+            try {
+                conn = pool.getConnection();
+                ps = conn.prepareStatement("UPDATE `plasmaprison_tokens` SET `tokens` = ? WHERE `uuid` = ?");
+                ps.setString(1, String.valueOf(i));
+                ps.setString(1, uuid.toString());
+                rs = ps.executeQuery();
+                if (rs.next()) {
+                    this.plugin.tokens.put(uuid, i);
+                } else {
+                    this.plugin.tokens.put(uuid, i);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                pool.close(conn, ps, rs);
+                Bukkit.getLogger().info("Updated to: " + this.plugin.tokens.get(uuid));
+            }
+        }
+
+
     }
 
     public void createTokensTable() {

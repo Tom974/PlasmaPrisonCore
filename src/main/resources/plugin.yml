@@ -6,4 +6,4 @@ load: POSTWORLD
 authors: [MyNqme]
 description: Plasma custom prison core
 softdepend: [Essentials, Vault, WorldEdit, WorldGuard, FastAsyncWorldEdit, ElementalGems]
-depend: [Vault, PlaceholderAPI, AutoSell, Essentials]
+depend: [Vault, PlaceholderAPI, Essentials]
