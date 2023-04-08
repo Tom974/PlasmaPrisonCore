@@ -98,7 +98,13 @@
             <artifactId>spigot</artifactId>
             <version>1.12.2</version>
             <scope>system</scope>
-            <systemPath>${basedir}/lib/spigot-1.12.2.jar</systemPath>
+            <systemPath>${basedir}/lib/craftbukkit-1.12.2.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.12.2-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.Simplix-Softworks</groupId>
@@ -119,16 +125,19 @@
             <groupId>de.tr7zw</groupId>
             <artifactId>item-nbt-api-plugin</artifactId>
             <version>2.11.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
             <version>1.7</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>me.clip</groupId>
             <artifactId>placeholderapi</artifactId>
-            <version>2.10.6</version>
+            <version>2.11.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>me.mynqme</groupId>
@@ -148,6 +157,7 @@
             <groupId>net.luckperms</groupId>
             <artifactId>api</artifactId>
             <version>5.4</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.sk89q.worldguard</groupId>

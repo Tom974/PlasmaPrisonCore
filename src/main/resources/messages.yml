@@ -1,6 +1,37 @@
-# action bar
-action-bar:
-  spacer: " &7&l|&r "
-  economy:
-    enabled: true
-    text: "&a&l+ {money}$"
+prefix: "&5&lPlasma&f&lMC &8» "
+commands:
+  no-permission: "&cYou do not have permission to use this command."
+  reloading: "&aReloading Addons..."
+  reload-complete: "&aReload complete!"
+  nbt-data: "&aNBT Data: &f%data%"
+  loaded-addons: "&aLoaded addons: &f%addons%"
+  no-addons-found: "&cNo addons found."
+  no-addon-provided: "&cPlease specify an addon to unload"
+  addon-unloaded: "&aSuccessfully unloaded addon: &f%addon%"
+  addon-not-found: "&cNo addon found with the name: &f%addon%"
+  disenchant-specify-more: "&cYou must need to specify at least one enchantment and level!"
+  disenchant-not-pickaxe: "&cYou must hold your pickaxe in your hand to disenchant a enchant!"
+  disenchant-invalid-enchant: "&c%enchant% is not a valid enchantment!"
+  disenchant-invalid-level: "&c%level% is not a valid level!"
+  disenchant-no-refund: "Uhm, Please report this to MyNqme: (Cost was 0?)"
+  disenchant-success: "&aSuccessfully disenchant %enchant% with levels: %level%!"
+  enchant-specify-more: "&cYou must need to specify at least one enchantment and level!"
+  enchant-not-pickaxe: "&cYou must hold your pickaxe in your hand to enchant a enchant!"
+  enchant-invalid-enchant: "&c%enchant% is not a valid enchantment!"
+  enchant-invalid-level: "&c%level% is not a valid level!"
+  enchant-max-level: "&cYou have already maxed out this enchantment"
+  enchant-no-cost: "Uhm, Please report this to MyNqme: (Cost was 0?)"
+  enchant-not-enough-tokens: "&cYou do not have enough tokens to enchant this! Cost: %tokens%"
+  enchant-success: "&aSuccessfully enchanted %enchant% with levels: %level%! (cost: %cost%)"
+  player-not-found: "&cPlayer not found!"
+  givepick-all: "&aSuccessfully gave all players a pickaxe!"
+help-menu:
+  player:
+    - "&5&lPlasma&f&lMC &8» &fPossible commands:"
+    - "&5&lPlasma&f&lMC &8» &f/plasmaprison enchant <enchant_id> <level>"
+    - "&5&lPlasma&f&lMC &8» &f/plasmaprison enchants"
+  admin:
+    - "/plasmaprison addons"
+    - "/plasmaprison unload <addon>"
+    - "/plasmaprison reload"
+    - "/plasmaprison givepick <player>"

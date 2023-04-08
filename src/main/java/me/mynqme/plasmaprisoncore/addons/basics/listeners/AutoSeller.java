@@ -35,17 +35,22 @@ public class AutoSeller implements Listener {
 
     @EventHandler
     public void onNormalBreak(BlockBreakEvent event) {
-        event.setDropItems(false);
         // get region player is standing in
         wgmanager = container.get(event.getBlock().getWorld());
         assert wgmanager != null;
-        if(!wgmanager.getApplicableRegions(event.getBlock().getLocation()).getRegions().stream().anyMatch(region-> (region.getFlag(DefaultFlag.BLOCK_BREAK) == StateFlag.State.ALLOW && !region.getId().equalsIgnoreCase("mine-event")))) {
+        if(wgmanager.getApplicableRegions(event.getBlock().getLocation()).getRegions().stream().noneMatch(region-> (region.getFlag(DefaultFlag.BLOCK_BREAK) == StateFlag.State.ALLOW && !region.getId().equalsIgnoreCase("mine-event")))) {
             return;
         }
 
-
-        if (event.isCancelled() || event.getPlayer().getInventory().getItemInMainHand() == null || event.getPlayer().getInventory().getItemInMainHand().getType() == Material.AIR
-        ) return;
+        if (
+            event.isCancelled() ||
+            event.getPlayer().getInventory().getItemInMainHand() == null ||
+            !event.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.DIAMOND_PICKAXE) ||
+            core.config.getStringList("blacklisted-worlds").contains(event.getPlayer().getWorld().getName())
+        ) {
+            return;
+        }
+        event.setDropItems(false);
 
         int lvl = EnchantManager.getInst().getEnchantLevel(event.getPlayer().getInventory().getItemInMainHand(), "fortune");
         List<ItemStack> toSell = new ArrayList<>();

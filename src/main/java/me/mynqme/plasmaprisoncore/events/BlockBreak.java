@@ -16,10 +16,12 @@ import me.mynqme.plasmaprisoncore.internal.events.FixedBreakBlockEvent;
 import org.bukkit.Bukkit;
 //import me.clip.autosell.*;
 import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -37,56 +39,57 @@ public class BlockBreak implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onBreak(BlockBreakEvent event) {
-        event.setDropItems(false);
         // get region player is standing in
         wgmanager = container.get(event.getBlock().getWorld());
         assert wgmanager != null;
-        if(!wgmanager.getApplicableRegions(event.getBlock().getLocation()).getRegions().stream().anyMatch(region-> (region.getFlag(DefaultFlag.BLOCK_BREAK) == StateFlag.State.ALLOW && !region.getId().equalsIgnoreCase("mine-event")))) {
+        if(wgmanager.getApplicableRegions(event.getBlock().getLocation()).getRegions().stream().noneMatch(region-> (region.getFlag(DefaultFlag.BLOCK_BREAK) == StateFlag.State.ALLOW && !region.getId().equalsIgnoreCase("mine-event")))) {
             return;
         }
 
         if (
             event.isCancelled() ||
             event.getPlayer().getInventory().getItemInMainHand() == null ||
-            event.getPlayer().getInventory().getItemInMainHand().getType() == Material.AIR
+            !event.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.DIAMOND_PICKAXE) ||
+            core.config.getStringList("blacklisted-worlds").contains(event.getPlayer().getWorld().getName())
         ) return;
+        event.setDropItems(false);
+
+        NBTCompound enchants = core.enchantManager.getEnchantCompound(event.getPlayer().getInventory().getItemInMainHand());
+        List<BreakResult> results = core.enchantManager.registeredEnchants.values().stream()
+            .filter(enchant -> enchants.hasTag(enchant.getId()))
+            .map(enchant -> enchant.onBreak(event))
+            .collect(Collectors.toList());
         Bukkit.getScheduler().runTaskAsynchronously(core, () -> { // NOTE TO SELF: Because of the async, the material gets changed to AIR
-            if (!event.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.DIAMOND_PICKAXE)) return;
-            NBTCompound enchants = core.enchantManager.getEnchantCompound(event.getPlayer().getInventory().getItemInMainHand());
-            List<BreakResult> results = core.enchantManager.registeredEnchants.values().stream()
-                .filter(enchant -> enchants.hasTag(enchant.getId()))
-                .map(enchant -> enchant.onBreak(event))
-                .collect(Collectors.toList());
             FixedBreakBlockEvent breakBlockEvent = new FixedBreakBlockEvent(event.getPlayer(), results);
             Bukkit.getPluginManager().callEvent(breakBlockEvent);
         });
+//
+//         Handle individual drops
+/*        if (!AutoSellAPI.hasShop(event.getPlayer())) return;
+        int lvlFortune = EnchantManager.getInst().getEnchantLevel(event.getPlayer().getInventory().getItemInMainHand(), "fortune");
 
-        // Handle individual drops
-//        if (!AutoSellAPI.hasShop(event.getPlayer())) return;
-//        int lvlFortune = EnchantManager.getInst().getEnchantLevel(event.getPlayer().getInventory().getItemInMainHand(), "fortune");
-//
-//        List<ItemStack> drops = new ArrayList<>();
-//        drops.add(new ItemStack(event.getBlock().getType(), 1));
-//        if (event.getBlock().getType() == Material.AIR || !event.getBlock().getType().isBlock()) return;
-//
-//        List<ItemStack> toSell = drops
-//                .stream() // being of the stream
-//                .filter(material -> material.getType() != Material.AIR && material.getType().isBlock()) // filter for material that is not AIR or it isn't a block
-//                .map(material->new ItemStack(material.getType(), lvlFortune > 0 ? new Random().nextInt(lvlFortune) : 1)) // map to stream ot itemstack
-//                .collect(Collectors.toList()); // collect everything to a simple list
+        List<ItemStack> drops = new ArrayList<>();
+        drops.add(new ItemStack(event.getBlock().getType(), 1));
+        if (event.getBlock().getType() == Material.AIR || !event.getBlock().getType().isBlock()) return;
 
-//        long amount = (lvlFortune > 0 ? new Random().nextInt(lvlFortune) : 1);
-//        int lvlMerchant =EnchantManager.getInst().getEnchantLevel(event.getPlayer().getInventory().getItemInMainHand(), "merchant");
-//        if (lvlMerchant > 0) {
-//            Enchant enchant = EnchantManager.getInst().registeredEnchants.get("merchant");
-//            if (chance(enchant.max, lvlMerchant, enchant.maxChance)) {
-//                // merchant proc! double the items
-//                amount *= 2;
-//            }
-//        }
-//
-//        AddonBasics.sellSeperateItem(event.getBlock().getType(), amount, event.getPlayer());
-//        AddonBasics.sellItems(toSell, event.getPlayer());
-//        SellHandler.sellItems(event.getPlayer(), toSell, AutoSellAPI.getCurrentShop(event.getPlayer()));
+        List<ItemStack> toSell = drops
+                .stream() // being of the stream
+                .filter(material -> material.getType() != Material.AIR && material.getType().isBlock()) // filter for material that is not AIR or it isn't a block
+                .map(material->new ItemStack(material.getType(), lvlFortune > 0 ? new Random().nextInt(lvlFortune) : 1)) // map to stream ot itemstack
+                .collect(Collectors.toList()); // collect everything to a simple list
+
+        long amount = (lvlFortune > 0 ? new Random().nextInt(lvlFortune) : 1);
+        int lvlMerchant =EnchantManager.getInst().getEnchantLevel(event.getPlayer().getInventory().getItemInMainHand(), "merchant");
+        if (lvlMerchant > 0) {
+            Enchant enchant = EnchantManager.getInst().registeredEnchants.get("merchant");
+            if (chance(enchant.max, lvlMerchant, enchant.maxChance)) {
+                // merchant proc! double the items
+                amount *= 2;
+            }
+        }
+
+        AddonBasics.sellSeperateItem(event.getBlock().getType(), amount, event.getPlayer());
+        AddonBasics.sellItems(toSell, event.getPlayer());
+        SellHandler.sellItems(event.getPlayer(), toSell, AutoSellAPI.getCurrentShop(event.getPlayer()));*/
     }
 }

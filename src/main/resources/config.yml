@@ -8,3 +8,5 @@ blacklisted-worlds:
   - 'world_nether'
 blocks-prices:
   SANDSTONE:1: 0.1
+first-join-commands:
+  - 'msg hello %player%'

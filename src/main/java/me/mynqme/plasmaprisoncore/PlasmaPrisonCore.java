@@ -13,6 +13,7 @@ import me.mynqme.plasmaprisoncore.internal.util.sql.Database;
 import me.mynqme.plasmaprisoncore.util.Tasks;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -119,5 +120,9 @@ public final class PlasmaPrisonCore extends JavaPlugin {
             t.printStackTrace();
             throw new IOException("Error adding " + url + " to system classloader");
         }
+    }
+
+    public String color(String msg) {
+        return ChatColor.translateAlternateColorCodes('&', msg);
     }
 }

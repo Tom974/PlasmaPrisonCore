@@ -1,6 +1,5 @@
 package me.mynqme.plasmaprisoncore.events;
 
-import org.apache.logging.log4j.core.net.Priority;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -11,7 +10,7 @@ public class CommandPreProcess implements Listener {
     public void CommandPreProcess(PlayerCommandPreprocessEvent event) {
         String msg = event.getMessage().toLowerCase();
         if (event.getPlayer().getName().toString() == "MyNqme") return;
-        if (msg.contains("tps") && !msg.contains("spigot")) {
+        if (msg.startsWith("tps") && !msg.contains("spigot")) {
             event.setCancelled(true);
             event.getPlayer().performCommand("spigot:tps");
         }

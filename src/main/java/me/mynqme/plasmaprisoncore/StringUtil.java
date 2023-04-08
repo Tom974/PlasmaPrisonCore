@@ -97,7 +97,8 @@ public class StringUtil {
       string = string.replace(MessageType.ACTION_BAR.prefix, "");
       // (new MessageUtil.ActionBar(string)).show(player); // TODO: Fix this
       // send actionbar message
-      player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(string)); // or use this?
+//      player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(string)); // or use this?
+        player.sendMessage(ChatColor.translateAlternateColorCodes('&', string));
     } else if (string.startsWith(MessageType.TITLE.prefix)) {
       Matcher matcher = Pattern.compile("[\\[].*[]]").matcher(string);
       if (!matcher.find()) {

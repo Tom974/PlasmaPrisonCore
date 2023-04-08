@@ -67,7 +67,7 @@ public abstract class XCommand extends Command {
     public abstract List<String> onTabComplete(Player p, String[] args);
 
     public boolean execute(CommandSender sender, String label, String[] args) {
-        if(info.requiresPlayer()&&!(sender instanceof Player) && !args[0].equalsIgnoreCase("enchant")) {
+        if(info.requiresPlayer()&&!(sender instanceof Player) && !args[0].equalsIgnoreCase("enchant") && !args[0].equalsIgnoreCase("givepick")) {
             severe(sender, "Only players can use this command");
             return true;
         }

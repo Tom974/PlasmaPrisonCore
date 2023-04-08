@@ -55,8 +55,9 @@ public class HookPapi extends PlaceholderExpansion {
         } else if (params.contains("_level")) {
             // get current level of specified enchant
             String enchant = params.replace("_level", "");
+            if (player.getInventory() == null) return "Please hold your pickaxe in your main hand!";
             if (player.getInventory().getItemInMainHand() == null) return "Please hold your pickaxe in your main hand!";
-            return this.manager.getEnchantLevel(player.getInventory().getItemInMainHand(), enchant) + "";
+            return String.valueOf(this.manager.getEnchantLevel(player.getInventory().getItemInMainHand(), enchant));
         } else if (params.toLowerCase().contains("cost_")) {
             // get current level of specified enchant
             String enchant_name = params.split("_cost_")[0];

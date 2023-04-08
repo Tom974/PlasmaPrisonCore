@@ -88,7 +88,8 @@ public class Database {
         }
     }
 
-    public void onJoin(String playername, UUID uuid) {
+    public Boolean onJoin(String playername, UUID uuid) {
+        boolean firstjoin = false;
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -98,14 +99,10 @@ public class Database {
             ps.setString(1,uuid.toString());
             rs = ps.executeQuery();
             boolean b = rs.next();
-            if (b) {
-                String dbname = rs.getString("name");
-                if (dbname.equalsIgnoreCase(playername)) {
-                    pool.close(conn, ps, rs);
-                    return;
-                }
-            }
 
+            if (!b) {
+                firstjoin = true;
+            }
             // fix resource leak
             pool.close(conn, ps, rs);
             conn = pool.getConnection();
@@ -126,23 +123,22 @@ public class Database {
             ps.setString(1, uuid.toString());
             rs = ps.executeQuery();
             boolean b = rs.next();
-            if (b) {
+            if (!b) {
+                Bukkit.getLogger().info("User "+playername+" does not exist in database, creating new entry...");
                 pool.close(conn, ps, rs);
-                return;
+                conn = pool.getConnection();
+                ps = conn.prepareStatement("INSERT INTO `plasmaprison_tokens` (uuid, tokens) VALUES (?,?)");
+                ps.setString(1, uuid.toString());
+                ps.setString(2, "0");
+                ps.executeUpdate();
             }
-
-            Bukkit.getLogger().info("User "+playername+" does not exist in database, creating new entry...");
-            pool.close(conn, ps, rs);
-            conn = pool.getConnection();
-            ps = conn.prepareStatement("INSERT INTO `plasmaprison_tokens` (uuid, tokens) VALUES (?,?)");
-            ps.setString(1, uuid.toString());
-            ps.setString(2, "0");
-            ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             pool.close(conn, ps, rs);
         }
+
+        return firstjoin;
     }
 
     public void onLeave(UUID uuid) {
