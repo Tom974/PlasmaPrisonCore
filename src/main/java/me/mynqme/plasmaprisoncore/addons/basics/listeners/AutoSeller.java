@@ -13,7 +13,9 @@ import me.mynqme.plasmaprisoncore.enchant.BreakResult;
 import me.mynqme.plasmaprisoncore.enchant.Enchant;
 import me.mynqme.plasmaprisoncore.enchant.EnchantManager;
 import me.mynqme.plasmaprisoncore.internal.events.FixedBreakBlockEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -36,6 +38,7 @@ public class AutoSeller implements Listener {
     @EventHandler
     public void onNormalBreak(BlockBreakEvent event) {
         // get region player is standing in
+        Player player = event.getPlayer();
         wgmanager = container.get(event.getBlock().getWorld());
         assert wgmanager != null;
         if(wgmanager.getApplicableRegions(event.getBlock().getLocation()).getRegions().stream().noneMatch(region-> (region.getFlag(DefaultFlag.BLOCK_BREAK) == StateFlag.State.ALLOW && !region.getId().equalsIgnoreCase("mine-event")))) {
@@ -44,61 +47,73 @@ public class AutoSeller implements Listener {
 
         if (
             event.isCancelled() ||
-            event.getPlayer().getInventory().getItemInMainHand() == null ||
-            !event.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.DIAMOND_PICKAXE) ||
-            core.config.getStringList("blacklisted-worlds").contains(event.getPlayer().getWorld().getName())
+            player.getInventory().getItemInMainHand() == null ||
+            !player.getInventory().getItemInMainHand().getType().equals(Material.DIAMOND_PICKAXE) ||
+            core.config.getStringList("blacklisted-worlds").contains(player.getWorld().getName())
         ) {
             return;
         }
         event.setDropItems(false);
 
-        int lvl = EnchantManager.getInst().getEnchantLevel(event.getPlayer().getInventory().getItemInMainHand(), "fortune");
+        int lvl = EnchantManager.getInst().getEnchantLevel(player.getInventory().getItemInMainHand(), "fortune");
         List<ItemStack> toSell = new ArrayList<>();
         MaterialData data = event.getBlock().getState().getData();
         ItemStack itemToSell = new ItemStack(event.getBlock().getType(), (lvl > 0 ? new Random().nextInt(lvl) : 0));
         itemToSell.setData(data);
         toSell.add(itemToSell);
-        int lvlMerchant = EnchantManager.getInst().getEnchantLevel(event.getPlayer().getInventory().getItemInMainHand(), "merchant");
+        int lvlMerchant = EnchantManager.getInst().getEnchantLevel(player.getInventory().getItemInMainHand(), "merchant");
+        boolean merchantProc;
         if (lvlMerchant > 0) {
             Enchant enchant = EnchantManager.getInst().registeredEnchants.get("merchant");
-            if (chance(enchant.max, lvlMerchant, enchant.maxChance)) {
-                // merchant proc! double the items
-                toSell.addAll(toSell);
-            }
+            merchantProc = chance(enchant.max, lvlMerchant, enchant.maxChance);
+        } else {
+            merchantProc = false;
         }
 
-        AddonBasics.sellItems(toSell, event.getPlayer());
-
+        Bukkit.getScheduler().runTaskAsynchronously(core, () -> {
+            AddonBasics.sellItems(toSell, player, merchantProc);
+        });
     }
     @EventHandler
     public void onFixedBreak(FixedBreakBlockEvent event) {
         // handle explosion drops
 //        if (!AutoSellAPI.hasShop(event.getPlayer())) return;
-        if (!event.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.DIAMOND_PICKAXE)) return;
-        int lvl = EnchantManager.getInst().getEnchantLevel(event.getPlayer().getInventory().getItemInMainHand(), "fortune");
+        Player player = event.getPlayer();
+        if (!player.getInventory().getItemInMainHand().getType().equals(Material.DIAMOND_PICKAXE)) return;
+        int lvlFortune = EnchantManager.getInst().getEnchantLevelFromCompound(event.getNBTCompound(), "fortune");
         List<ItemStack> toSell = event.getResults()
-                .stream() // being of the stream
-                .filter(Objects::nonNull) // null check
-                .map(BreakResult::getOldBlocks) // map to stream of list of materials
-                .filter(Objects::nonNull) // null check
-                .flatMap(List::stream) // map to stream of materials
-                .filter(Objects::nonNull) // null check
-                .filter(material -> material != Material.AIR && material.isBlock()) // filter for material that is not AIR or it isn't a block
-                .map(material->new ItemStack(material, lvl > 0 ? new Random().nextInt(lvl) : 1)) // map to stream ot itemstack
-                .collect(Collectors.toList()); // collect everything to a simple list
+            .stream() // being of the stream
+            .filter(Objects::nonNull) // null check
+            .map(BreakResult::getOldBlocks) // map to stream of list of materials
+            .filter(Objects::nonNull) // null check
+            .flatMap(List::stream) // map to stream of materials
+            .filter(Objects::nonNull) // null check
+            .filter(material -> material != Material.AIR && material != Material.BEDROCK && material.isBlock()) // filter for material that is not AIR or it isn't a block
+            .map(material->new ItemStack(material, lvlFortune > 0 ? new Random().nextInt(lvlFortune) : 1)) // map to stream ot itemstack
+            .collect(Collectors.toList()); // collect everything to a simple list
 
-        int lvlMerchant = EnchantManager.getInst().getEnchantLevel(event.getPlayer().getInventory().getItemInMainHand(), "merchant");
+        if (toSell.isEmpty()) return;
+
+        int lvlMerchant = EnchantManager.getInst().getEnchantLevelFromCompound(event.getNBTCompound(), "merchant");
+        boolean merchantProc;
         if (lvlMerchant > 0) {
             Enchant enchant = EnchantManager.getInst().registeredEnchants.get("merchant");
-            if (chance(enchant.max, lvlMerchant, enchant.maxChance)) {
-                // merchant proc! double the items
-                toSell.addAll(toSell);
-            }
+            merchantProc = chance(enchant.max, lvlMerchant, enchant.maxChance);
+        } else {
+            merchantProc = false;
         }
 
-//        event.getPlayer().sendMessage("To sell size 3: " + toSell.size());
-        AddonBasics.sellItems(toSell, event.getPlayer());
-//        SellHandler.sellItems(event.getPlayer(), toSell, AutoSellAPI.getCurrentShop(event.getPlayer()));
+        // get all itemstacks that are the same material and add them together
+        Bukkit.getScheduler().runTaskAsynchronously(core, () -> {
+            List<ItemStack> finalToSell = toSell.stream().collect(Collectors.groupingBy(ItemStack::getType)).values().stream().map(itemStacks -> {
+                ItemStack itemStack = itemStacks.get(0);
+                itemStack.setAmount(itemStacks.stream().mapToInt(ItemStack::getAmount).sum());
+                return itemStack;
+            }).collect(Collectors.toList());
+
+//            Bukkit.getLogger().info("toSell itemstack size: " + finalToSell.size());
+            AddonBasics.sellItems(finalToSell, player, merchantProc);
+        });
     }
 
     private boolean chance(int max, int lvl, double maxChance) {

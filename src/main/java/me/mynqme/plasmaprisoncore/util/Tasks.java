@@ -22,7 +22,6 @@ public class Tasks {
         }, 20 * 60 * 5 /*5min */, 20 * 60 * 10 /*10min */);
     }
 
-
     /**
      * This task check every second of a change in the amount of player's money
      */

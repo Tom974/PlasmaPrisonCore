@@ -68,6 +68,11 @@ public class EnchantManager {
         return enchants.hasTag(id) ? enchants.getInteger(id) : 0;
     }
 
+    public int getEnchantLevelFromCompound(NBTCompound enchants, String id) {
+        if (enchants == null) return 0;
+        return enchants.hasTag(id) ? enchants.getInteger(id) : 0;
+    }
+
     public ItemStack removeEnchant(ItemStack item, Enchant enchant) {
         NBTItem nbti = new NBTItem(item);
         if (!nbti.hasTag("PlasmaPrison")) nbti.addCompound("PlasmaPrison");

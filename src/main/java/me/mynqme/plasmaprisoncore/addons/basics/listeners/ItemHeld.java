@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -32,5 +33,13 @@ public class ItemHeld implements Listener {
         if (haste>0) player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 1000000, --haste));
         if (jump>0) player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 1000000, --jump));
         if (speed>0) player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 1000000, --speed));
+    }
+
+    @EventHandler
+    public void onWorldChangeEvent(PlayerChangedWorldEvent event) {
+        Player player = event.getPlayer();
+        if (PlasmaPrisonCore.getInstance().config.getStringList("blacklisted-worlds").contains(player.getWorld().getName())) {
+            player.getActivePotionEffects().stream().map(PotionEffect::getType).filter(effects::contains).forEach(player::removePotionEffect);
+        }
     }
 }

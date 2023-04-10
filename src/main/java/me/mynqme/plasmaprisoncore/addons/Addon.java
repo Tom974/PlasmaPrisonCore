@@ -7,7 +7,6 @@ import me.mynqme.plasmaprisoncore.enchant.Enchant;
 import me.mynqme.plasmaprisoncore.enchant.EnchantManager;
 // import me.mynqme.plasmaprisoncore.internal.hooks.PapiPlaceholder;
 import me.mynqme.plasmaprisoncore.internal.util.SimpleEntry;
-import me.mynqme.plasmaprisoncore.util.AsyncTask;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
 import org.bukkit.event.HandlerList;

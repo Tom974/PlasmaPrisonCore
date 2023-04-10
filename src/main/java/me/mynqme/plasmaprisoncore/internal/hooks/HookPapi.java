@@ -10,6 +10,7 @@ import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.node.Node;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -55,8 +56,8 @@ public class HookPapi extends PlaceholderExpansion {
         } else if (params.contains("_level")) {
             // get current level of specified enchant
             String enchant = params.replace("_level", "");
-            if (player.getInventory() == null) return "Please hold your pickaxe in your main hand!";
             if (player.getInventory().getItemInMainHand() == null) return "Please hold your pickaxe in your main hand!";
+            if (!player.getInventory().getItemInMainHand().equals(Material.DIAMOND_PICKAXE)) return "Please hold your pickaxe in your main hand!";
             return String.valueOf(this.manager.getEnchantLevel(player.getInventory().getItemInMainHand(), enchant));
         } else if (params.toLowerCase().contains("cost_")) {
             // get current level of specified enchant

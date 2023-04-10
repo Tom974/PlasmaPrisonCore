@@ -18,10 +18,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class AddonBasics extends Addon {
@@ -112,19 +110,39 @@ public class AddonBasics extends Addon {
 
     }
 
-    public static void sellItems(List<ItemStack> toSell, Player player) {
-        for (ItemStack item : toSell) {
-//            player.sendMessage("itemstack data type: " + item.getType().name().toUpperCase() +":"+item.getData().getData());
-            double price = PlasmaPrisonCore.getInstance().config.getDouble("block-prices." + item.getType().name().toUpperCase() + ":" + item.getData().getData() + ".price");
-//            player.sendMessage("Price of this block is: " + price);
-            if (price == 0.0) continue;
-            int amount = item.getAmount();
-            double total = (price * amount) * Api.getMultiplier(player, "sell");
-            EconomyResponse r = PlasmaPrisonCore.getInstance().econ.depositPlayer(player, total);
-//            player.sendMessage("Selling " + amount + " " + item.getType().name() + " for " + total + " $");
-            if(!r.transactionSuccess()) {
-                PlasmaPrisonCore.getInstance().getLogger().warning(String.format("An error occured: %s", r.errorMessage));
+    public static void sellItems(List<ItemStack> toSell, Player player, boolean merchantProc) {
+//        for (ItemStack item : toSell) {
+//            double price = PlasmaPrisonCore.getInstance().config.getDouble("block-prices." + item.getType().name().toUpperCase() + ":" + item.getData().getData() + ".price");
+//            if (price == 0.0) continue;
+//            int amount = item.getAmount();
+//            double total = (price * amount) * Api.getMultiplier(player, "sell");
+//            EconomyResponse r = PlasmaPrisonCore.getInstance().econ.depositPlayer(player, total);
+//            if(!r.transactionSuccess()) {
+//                PlasmaPrisonCore.getInstance().getLogger().warning(String.format("An error occured: %s", r.errorMessage));
+//            }
+//        }
+        PlasmaPrisonCore inst = PlasmaPrisonCore.getInstance();
+        BigDecimal totalPrice = new BigDecimal(0);
+        for (Iterator<ItemStack> iterator = toSell.iterator(); iterator.hasNext(); ) {
+            ItemStack itemStack = iterator.next();
+            if (itemStack.getAmount() == 0) {
+                iterator.remove();
+                continue;
             }
+//            Bukkit.getLogger().info("Itemstack amount: " + itemStack.getAmount() + " Type: " + itemStack.getType().name() + ":" + itemStack.getData().getData());
+            double price = inst.config.getDouble("block-prices." + itemStack.getType().name().toUpperCase() + ":" + itemStack.getData().getData() + ".price");
+            if (price == 0.0) continue;
+            double total = (price * itemStack.getAmount());
+            totalPrice = totalPrice.add(new BigDecimal(total));
+        }
+
+        totalPrice = totalPrice.multiply(BigDecimal.valueOf(Api.getMultiplier(player, "sell")));
+        if (merchantProc) {
+            totalPrice = totalPrice.multiply(BigDecimal.valueOf(2.0));
+        }
+        EconomyResponse r = PlasmaPrisonCore.getInstance().econ.depositPlayer(player, totalPrice.doubleValue());
+        if(!r.transactionSuccess()) {
+            PlasmaPrisonCore.getInstance().getLogger().warning(String.format("An error occured: %s", r.errorMessage));
         }
     }
 

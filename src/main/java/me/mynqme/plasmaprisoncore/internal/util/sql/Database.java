@@ -117,27 +117,6 @@ public class Database {
             pool.close(conn, ps, rs);
         }
 
-        try {
-            conn = pool.getConnection();
-            ps = conn.prepareStatement("SELECT * FROM `plasmaprison_tokens` WHERE uuid = ?");
-            ps.setString(1, uuid.toString());
-            rs = ps.executeQuery();
-            boolean b = rs.next();
-            if (!b) {
-                Bukkit.getLogger().info("User "+playername+" does not exist in database, creating new entry...");
-                pool.close(conn, ps, rs);
-                conn = pool.getConnection();
-                ps = conn.prepareStatement("INSERT INTO `plasmaprison_tokens` (uuid, tokens) VALUES (?,?)");
-                ps.setString(1, uuid.toString());
-                ps.setString(2, "0");
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            pool.close(conn, ps, rs);
-        }
-
         return firstjoin;
     }
 
@@ -317,13 +296,9 @@ public class Database {
 
     public long getTokens(UUID uuid, boolean fromDatabase) {
         if (!fromDatabase) {
-            // get player by uuid
-//             Bukkit.getLogger().info("§a§lDEBUG: §f§lUsing cached tokens");
             if (this.plugin.tokens.containsKey(uuid)) {
-//                Bukkit.getLogger().info("Loaded tokens for " + uuid.toString() + ": " + this.plugin.tokens.get(uuid));
                 return this.plugin.tokens.get(uuid);
             } else {
-//                Bukkit.getLogger().info("Fetching from db...");
                 fromDatabase = true; // fetch from db again
             }
         }
@@ -340,21 +315,21 @@ public class Database {
                 rs = ps.executeQuery();
                 if (rs.next()) {
                     tokens = rs.getLong("tokens");
-                } else {
-                    pool.close(conn, ps, rs);
-                    conn = pool.getConnection();
-                    ps = conn.prepareStatement("INSERT INTO `plasmaprison_tokens` (`tokens`,`uuid`) VALUES (?,?)");
-                    ps.setString(1, "0");
-                    ps.setString(2, uuid.toString());
-                    ps.executeUpdate();
                 }
+                //  else if (!rs.next()){
+                //     pool.close(conn, ps, rs);
+                //     conn = pool.getConnection();
+                //     ps = conn.prepareStatement("INSERT INTO `plasmaprison_tokens` (`tokens`,`uuid`) VALUES (?,?)");
+                //     ps.setString(1, "0");
+                //     ps.setString(2, uuid.toString());
+                //     ps.executeUpdate();
+                // }
             } catch (SQLException e) {
                 e.printStackTrace();
             } finally {
                 pool.close(conn, ps, rs);
-//                Bukkit.getLogger().info("Loaded tokens for " + uuid.toString() + ": " + tokens);
-                return tokens;
             }
+            return tokens;
         }
 
         Bukkit.getLogger().severe("§c§lERROR: §f§lPlayer not found in cache or database! TELL MyNqme IMMEDIATELY (Extra info: " + uuid.toString() + ")");
