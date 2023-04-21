@@ -231,7 +231,7 @@ public class CmdPlasmaPrison extends XCommand {
 //                playertoCheck.sendMessage("You paid: " + cost + " tokens to enchant this item to level " + (i) + " max you can enchant is " + enchant.max + " levels");
                 basics.removeTokensWithoutFiringEvent(playertoCheck.getUniqueId(), cost);
                 playertoCheck.getInventory().setItemInMainHand(instance.enchantManager.enchant(hand,enchant,i,playertoCheck));
-                playertoCheck.sendMessage(instance.color( this.instance.messages.getString("prefix") + this.instance.messages.getString("commands.enchant-success").replace("%enchant%", args[1]).replace("%level%", args[2]).replace("%cost%", String.valueOf(format(cost)))));
+                playertoCheck.sendMessage(instance.color( this.instance.messages.getString("prefix") + this.instance.messages.getString("commands.enchant-success").replace("%enchant%", args[1]).replace("%level%", String.valueOf(i)).replace("%cost%", String.valueOf(format(cost)))));
                 return;
             }
             case "givepick": {

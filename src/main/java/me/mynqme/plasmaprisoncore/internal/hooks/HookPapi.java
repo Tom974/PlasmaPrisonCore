@@ -56,8 +56,18 @@ public class HookPapi extends PlaceholderExpansion {
         } else if (params.contains("_level")) {
             // get current level of specified enchant
             String enchant = params.replace("_level", "");
-            if (player.getInventory().getItemInMainHand() == null) return "Please hold your pickaxe in your main hand!";
-            if (!player.getInventory().getItemInMainHand().equals(Material.DIAMOND_PICKAXE)) return "Please hold your pickaxe in your main hand!";
+            // loop through inventory slots on main hotbar and check for pickaxe
+            for (int i = 0; i < 9; i++) {
+                ItemStack item = player.getInventory().getItem(i);
+                if (item == null) continue;
+                if (item.getType().equals(Material.DIAMOND_PICKAXE)) {
+                    // check if item has specified enchant
+                    if (this.manager.getEnchantLevel(item, enchant) > 0) {
+                        return String.valueOf(this.manager.getEnchantLevel(item, enchant));
+                    }
+                }
+            }
+            if (!player.getInventory().getItemInMainHand().getType().equals(Material.DIAMOND_PICKAXE)) return "Please hold your pickaxe in your main hand!";
             return String.valueOf(this.manager.getEnchantLevel(player.getInventory().getItemInMainHand(), enchant));
         } else if (params.toLowerCase().contains("cost_")) {
             // get current level of specified enchant
@@ -76,7 +86,7 @@ public class HookPapi extends PlaceholderExpansion {
             int to = (amount + currentlevel);
             if (to >= enchant.max) to = enchant.max;
             long cost = enchant.calcCost(currentlevel, to);
-            return cost + "";
+            return String.valueOf(cost);
         } else if (params.contains("_cost")) {
             // get current level of specified enchant
             String enchant = params.replace("_cost", "");
