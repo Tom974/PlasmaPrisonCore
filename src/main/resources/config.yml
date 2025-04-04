@@ -10,3 +10,9 @@ blocks-prices:
   SANDSTONE:1: 0.1
 first-join-commands:
   - 'msg hello %player%'
+database:
+  user: ""
+  password: ""
+  host: ""
+  port: ""
+  database: ""

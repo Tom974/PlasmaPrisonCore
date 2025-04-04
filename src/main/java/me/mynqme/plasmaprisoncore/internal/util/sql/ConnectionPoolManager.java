@@ -22,10 +22,10 @@ public class ConnectionPoolManager {
 
     private void setupPool() {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:mysql://" + "172.18.0.1" + ":" + "3306" + "/" + "prison");
+        config.setJdbcUrl("jdbc:mysql://" + this.plugin.config.getString("database.host") + ":" + this.plugin.config.getString("database.port") + "/" + this.plugin.config.getString("database.database"));
         config.setDriverClassName("com.mysql.jdbc.Driver");
-        config.setUsername("plugins");
-        config.setPassword("@%!agea3aUNG!3");
+        config.setUsername(this.plugin.config.getString("database.username"));
+        config.setPassword(this.plugin.config.getString("database.password"));
         config.setMinimumIdle(1);
         config.setMaximumPoolSize(100);
         config.setConnectionTimeout(300);
